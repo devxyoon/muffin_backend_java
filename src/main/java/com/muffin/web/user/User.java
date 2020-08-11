@@ -8,7 +8,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter
 @ToString
 @Entity
@@ -28,8 +28,6 @@ public class User {
     private String nickname;
     @Column(name="name")
     private String name;
-
-
 
     @Override
     public String toString() {

@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -17,7 +18,11 @@ public class QStock extends EntityPathBase<Stock> {
 
     private static final long serialVersionUID = -894905040L;
 
+    private static final PathInits INITS = PathInits.DIRECT2;
+
     public static final QStock stock = new QStock("stock");
+
+    public final com.muffin.web.asset.QAsset asset;
 
     public final StringPath category = createString("category");
 
@@ -34,15 +39,24 @@ public class QStock extends EntityPathBase<Stock> {
     public final NumberPath<Integer> symbol = createNumber("symbol", Integer.class);
 
     public QStock(String variable) {
-        super(Stock.class, forVariable(variable));
+        this(Stock.class, forVariable(variable), INITS);
     }
 
     public QStock(Path<? extends Stock> path) {
-        super(path.getType(), path.getMetadata());
+        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
     public QStock(PathMetadata metadata) {
-        super(Stock.class, metadata);
+        this(metadata, PathInits.getFor(metadata, INITS));
+    }
+
+    public QStock(PathMetadata metadata, PathInits inits) {
+        this(Stock.class, metadata, inits);
+    }
+
+    public QStock(Class<? extends Stock> type, PathMetadata metadata, PathInits inits) {
+        super(type, metadata, inits);
+        this.asset = inits.isInitialized("asset") ? new com.muffin.web.asset.QAsset(forProperty("asset"), inits.get("asset")) : null;
     }
 
 }
