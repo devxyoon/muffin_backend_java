@@ -1,5 +1,7 @@
 package com.muffin.web.comment;
 
+import com.muffin.web.board.Board;
+import com.muffin.web.user.User;
 import lombok.*;
 
 import javax.persistence.*;

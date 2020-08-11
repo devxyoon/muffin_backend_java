@@ -1,8 +1,11 @@
 package com.muffin.web.user;
 
+import com.muffin.web.board.Board;
+import com.muffin.web.comment.Comment;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
