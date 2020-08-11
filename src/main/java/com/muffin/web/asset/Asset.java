@@ -1,5 +1,8 @@
 package com.muffin.web.asset;
 
+import com.muffin.web.board.Board;
+import com.muffin.web.stock.Stock;
+import com.muffin.web.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +10,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,5 +38,11 @@ public class Asset {
         this.shareCount = shareCount;
         this.transactionType = transactionType;
     }
+
+    @ManyToOne @JoinColumn(name="user_id")
+    private User user;
+
+    @OneToMany(mappedBy = "asset", cascade = CascadeType.ALL)
+    private List<Stock> stockList;
 
 }

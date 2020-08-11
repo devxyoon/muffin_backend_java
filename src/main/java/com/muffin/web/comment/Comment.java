@@ -34,4 +34,10 @@ public class Comment {
         this.commentContent = commentContent;
         this.commentRegdate = commentRegdate;
     }
+
+    @ManyToOne @JoinColumn(name="user_id")
+    private User user;
+
+    @ManyToOne @JoinColumn(name="board_id")
+    private Board board;
 }

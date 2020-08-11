@@ -37,4 +37,11 @@ public class Board {
         this.boardContent = boardContent;
         this.boardRegdate = boardRegdate;
     }
+
+    @ManyToOne @JoinColumn(name="user_id")
+    private User user;
+
+    @OneToMany @JoinColumn(name="comment_id")
+    private List<Comment> commentList;
+
 }

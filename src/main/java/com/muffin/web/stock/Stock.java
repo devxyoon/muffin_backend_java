@@ -1,5 +1,7 @@
 package com.muffin.web.stock;
 
+import com.muffin.web.asset.Asset;
+import com.muffin.web.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,4 +35,7 @@ public class Stock {
         this.category = category;
         this.listedShares = listedShares;
     }
+
+    @ManyToOne @JoinColumn(name="asset_id")
+    private Asset asset;
 }

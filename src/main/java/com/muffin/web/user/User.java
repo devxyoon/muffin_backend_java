@@ -1,5 +1,6 @@
 package com.muffin.web.user;
 
+import com.muffin.web.asset.Asset;
 import com.muffin.web.board.Board;
 import com.muffin.web.comment.Comment;
 import lombok.*;
@@ -28,6 +29,8 @@ public class User {
     @Column(name="name")
     private String name;
 
+
+
     @Override
     public String toString() {
         return String.format("User[userid=%s, password='%s', name='%s', nickname='%s]", userid, password, name, nickname);
@@ -40,4 +43,14 @@ public class User {
         this.nickname = nickname;
         this.name = name;
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Board> boardList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Comment> commentList;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Asset> assetList;
+
 }

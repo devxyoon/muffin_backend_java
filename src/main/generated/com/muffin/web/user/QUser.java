@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
 import com.querydsl.core.types.Path;
+import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -18,6 +19,10 @@ public class QUser extends EntityPathBase<User> {
     private static final long serialVersionUID = -733150272L;
 
     public static final QUser user = new QUser("user");
+
+    public final ListPath<com.muffin.web.board.Board, com.muffin.web.board.QBoard> boardList = this.<com.muffin.web.board.Board, com.muffin.web.board.QBoard>createList("boardList", com.muffin.web.board.Board.class, com.muffin.web.board.QBoard.class, PathInits.DIRECT2);
+
+    public final ListPath<com.muffin.web.comment.Comment, com.muffin.web.comment.QComment> commentList = this.<com.muffin.web.comment.Comment, com.muffin.web.comment.QComment>createList("commentList", com.muffin.web.comment.Comment.class, com.muffin.web.comment.QComment.class, PathInits.DIRECT2);
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
