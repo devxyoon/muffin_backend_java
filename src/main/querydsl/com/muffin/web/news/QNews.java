@@ -21,7 +21,7 @@ public class QNews extends EntityPathBase<News> {
 
     public final StringPath newsContent = createString("newsContent");
 
-    public final NumberPath<Integer> newsId = createNumber("newsId", Integer.class);
+    public final NumberPath<Long> newsId = createNumber("newsId", Long.class);
 
     public final StringPath newsKeyword = createString("newsKeyword");
 

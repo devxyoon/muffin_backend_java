@@ -9,14 +9,15 @@ import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 @ToString
 @Entity
 @Table(name="board")
 public class Board {
-    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="board_id")
     private Long id;
 
     @Column(name = "board_title")

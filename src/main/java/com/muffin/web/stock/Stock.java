@@ -2,10 +2,7 @@ package com.muffin.web.stock;
 
 import com.muffin.web.asset.Asset;
 import com.muffin.web.user.User;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -13,6 +10,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @Table(name = "stock")
 public class Stock {
     @Id
@@ -26,8 +24,7 @@ public class Stock {
     @Column(name = "listed_shares") private String listedShares;
 
     @Builder
-    public Stock(Long stockId, int symbol, String market, String stockName, int categoryCode, String category, String listedShares) {
-        this.stockId = stockId;
+    public Stock(int symbol, String market, String stockName, int categoryCode, String category, String listedShares) {
         this.symbol = symbol;
         this.market = market;
         this.stockName = stockName;

@@ -3,10 +3,7 @@ package com.muffin.web.asset;
 import com.muffin.web.board.Board;
 import com.muffin.web.stock.Stock;
 import com.muffin.web.user.User;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -17,10 +14,11 @@ import java.util.List;
 @Setter
 @ToString
 @Table(name = "asset")
+@NoArgsConstructor
 public class Asset {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "asset_id") private int assetId;
+    @Column(name = "asset_id") private long assetId;
     @Column(name = "total_asset") private int totalAsset;
     @Column(name = "transaction_date") private Date transactionDate;
     @Column(name = "price_earnings_ratio") private int priceEarnigsRatio;
@@ -29,8 +27,7 @@ public class Asset {
     @Column(name = "transaction_type") private boolean transactionType;
 
     @Builder
-    public Asset(int assetId, int totalAsset, Date transactionDate, int priceEarnigsRatio, int profitLoss, int shareCount, boolean transactionType) {
-        this.assetId = assetId;
+    public Asset(int totalAsset, Date transactionDate, int priceEarnigsRatio, int profitLoss, int shareCount, boolean transactionType) {
         this.totalAsset = totalAsset;
         this.transactionDate = transactionDate;
         this.priceEarnigsRatio = priceEarnigsRatio;

@@ -3,25 +3,27 @@ package com.muffin.web.user;
 import com.muffin.web.asset.Asset;
 import com.muffin.web.board.Board;
 import com.muffin.web.comment.Comment;
+import com.muffin.web.investProfile.InvestProfile;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor
 @Getter
+@Setter
 @ToString
 @Entity
 @Table(name="user")
 public class User {
-    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="user_id")
     private Long id;
 
-    @Column(name = "userid")
-    private String userid;
+    @Column(name = "email_id")
+    private String emailId;
     @Column(name = "password")
     private String password;
     @Column(name="nickname")
@@ -31,12 +33,12 @@ public class User {
 
     @Override
     public String toString() {
-        return String.format("User[userid=%s, password='%s', name='%s', nickname='%s]", userid, password, name, nickname);
+        return String.format("User[email_id=%s, password='%s', name='%s', nickname='%s]", emailId, password, name, nickname);
     }
 
     @Builder
-    private User(String userid, String password, String nickname, String name) {
-        this.userid = userid;
+    private User(String emailId, String password, String nickname, String name) {
+        this.emailId = emailId;
         this.password = password;
         this.nickname = nickname;
         this.name = name;
@@ -50,5 +52,8 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Asset> assetList;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private InvestProfile investProfile;
 
 }

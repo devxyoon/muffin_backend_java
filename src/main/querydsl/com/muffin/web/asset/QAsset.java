@@ -22,7 +22,7 @@ public class QAsset extends EntityPathBase<Asset> {
 
     public static final QAsset asset = new QAsset("asset");
 
-    public final NumberPath<Integer> assetId = createNumber("assetId", Integer.class);
+    public final NumberPath<Long> assetId = createNumber("assetId", Long.class);
 
     public final NumberPath<Integer> priceEarnigsRatio = createNumber("priceEarnigsRatio", Integer.class);
 
@@ -58,7 +58,7 @@ public class QAsset extends EntityPathBase<Asset> {
 
     public QAsset(Class<? extends Asset> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.user = inits.isInitialized("user") ? new com.muffin.web.user.QUser(forProperty("user")) : null;
+        this.user = inits.isInitialized("user") ? new com.muffin.web.user.QUser(forProperty("user"), inits.get("user")) : null;
     }
 
 }

@@ -8,14 +8,15 @@ import javax.persistence.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 @ToString
 @Entity
 @Table(name="comment")
 public class Comment {
-    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="comment_id")
     private Long id;
 
     @Column(name="comment_content")

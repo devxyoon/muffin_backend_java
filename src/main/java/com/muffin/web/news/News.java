@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class News {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "news_id") private int newsId;
+    @Column(name = "news_id") private long newsId;
     @Column(name = "news_thumbnail") private String newsThumbnail;
     @Column(name = "news_title") private String newsTitle;
     @Column(name = "news_regDate") private String newsRegDate;
@@ -34,9 +34,8 @@ public class News {
     }
 
     @Builder
-    News(Integer newsId, String newsThumbnail, String newsTitle,
+    News(String newsThumbnail, String newsTitle,
          String newsRegDate, String newsContent, String newsKeyword){
-        this.newsId = newsId;
         this.newsThumbnail = newsThumbnail;
         this.newsTitle = newsTitle;
         this.newsRegDate = newsRegDate;
