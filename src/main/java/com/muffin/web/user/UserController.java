@@ -28,4 +28,16 @@ public class UserController {
         Optional<User> findUser = userService.findById(user.getEmailId());
         return findUser.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @PostMapping("/signIn")
+    public ResponseEntity<User> login(@RequestBody User user){
+        Optional<User> findUser = userService.findById(user.getEmailId());
+        if(findUser.isPresent()){
+            User returnUser = findUser.get();
+            return returnUser.getPassword().equals(user.getPassword()) ? ResponseEntity.ok(returnUser) : ResponseEntity.badRequest().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }
