@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<User> aaa(@RequestBody User user) {
+    public ResponseEntity<User> update(@RequestBody User user) {
         System.out.println(user);
         Optional<User> findUser = userService.findById(user.getId());
         if (findUser.isPresent()) {

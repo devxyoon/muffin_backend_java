@@ -8,6 +8,8 @@ import java.util.Optional;
 interface InvestProfileService extends GenericService<InvestProfile>{
 
     void save(InvestProfileVO investProfile);
+
+    void update(InvestProfileVO investProfile);
 }
 
 @Service
@@ -22,6 +24,14 @@ public class InvestProfileServiceImpl implements InvestProfileService {
     @Override
     public void save(InvestProfileVO investProfile) {
         InvestProfile ip = new InvestProfile(investProfile.getInvestmentPeriod(), investProfile.getInvestmentPropensity(), investProfile.getUser());
+        repository.save(ip);
+    }
+
+    @Override
+    public void update(InvestProfileVO investProfile) {
+        InvestProfile ip = repository.findById(investProfile.getUser().getId()).get();
+        ip.setInvestmentPropensity(investProfile.getInvestmentPropensity());
+        ip.setInvestmentPeriod(investProfile.getInvestmentPeriod());
         repository.save(ip);
     }
 

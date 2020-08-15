@@ -18,4 +18,10 @@ public class InvestProfileController {
         System.out.println(investProfile);
         investProfileService.save(investProfile);
     }
+
+    @PostMapping("/update")
+    public void update(@RequestBody InvestProfileVO investProfile){
+        System.out.println(investProfile);
+        investProfileService.update(investProfile);
+    }
 }
