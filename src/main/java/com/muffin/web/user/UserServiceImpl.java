@@ -1,11 +1,14 @@
 package com.muffin.web.user;
 
+import com.muffin.web.util.Box;
 import com.muffin.web.util.GenericService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 interface UserService extends GenericService<User> {
+
+    void save(User user);
 
 }
 
@@ -24,8 +27,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findById(String id) {
-        return Optional.empty();
+    public Optional<User> findById(String emailId) {
+        return repository.findByEmailId(emailId);
     }
 
     @Override
@@ -44,7 +47,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean exists(String id) {
-        return false;
+    public boolean exists(String emailId) {
+        return repository.existsByEmailId(emailId);
     }
+
+
 }
