@@ -26,7 +26,7 @@ public class InvestProfileServiceImpl implements InvestProfileService {
     }
 
     @Override
-    public Optional<InvestProfile> findById(String id) {
+    public Optional<InvestProfile> findById(Long id) {
         return Optional.empty();
     }
 

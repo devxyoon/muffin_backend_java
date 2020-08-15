@@ -8,7 +8,9 @@ import java.util.Optional;
 
 interface UserService extends GenericService<User> {
 
-    void save(User user);
+    User save(User user);
+
+    Optional<User> findByEmailId(String emailId);
 
 }
 
@@ -22,13 +24,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void save(User user) {
-        repository.save(user);
+    public User save(User user) {
+        return repository.save(user);
     }
 
     @Override
-    public Optional<User> findById(String emailId) {
+    public Optional<User> findByEmailId(String emailId) {
         return repository.findByEmailId(emailId);
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return repository.findById(id);
     }
 
     @Override
