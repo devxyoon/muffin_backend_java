@@ -2,7 +2,6 @@ package com.muffin.web.user;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @RestController
@@ -11,9 +10,11 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final MailService mailService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, MailService mailService) {
         this.userService = userService;
+        this.mailService = mailService;
     }
 
     @GetMapping("/idCheck/{emailId}")
@@ -67,4 +68,17 @@ public class UserController {
 
     }
 
+    @GetMapping("/findPassword/{emailId}")
+    public ResponseEntity<User> findPassword(@PathVariable String emailId) {
+        Optional<User> findUser = userService.findByEmailId(emailId);
+        if (findUser.isPresent()) {
+            User returnUser = findUser.get();
+            returnUser.setPassword(mailService.init());
+            userService.save(returnUser);
+            mailService.mailSend(returnUser);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
