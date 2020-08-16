@@ -1,5 +1,6 @@
 package com.muffin.web.comment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.muffin.web.board.Board;
 import com.muffin.web.user.User;
 import lombok.*;
@@ -38,9 +39,9 @@ public class Comment {
         this.board = board;
     }
 
-    @ManyToOne @JoinColumn(name="user_id")
+    @ManyToOne @JoinColumn(name="user_id") @JsonIgnore
     private User user;
 
-    @ManyToOne @JoinColumn(name="board_id")
+    @ManyToOne @JoinColumn(name="board_id") @JsonIgnore
     private Board board;
 }

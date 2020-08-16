@@ -16,7 +16,7 @@ public class BoardController {
         this.boardService = boardService;
     }
 
-    @GetMapping("/readcsv")
+    @GetMapping("/csv")
     public void csvRead() {
         boardService.readCsv();
     }

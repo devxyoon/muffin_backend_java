@@ -17,6 +17,11 @@ public class UserController {
         this.mailService = mailService;
     }
 
+    @GetMapping("/csv")
+    public void readCsv(){
+        userService.readCsv();
+    }
+
     @GetMapping("/idCheck/{emailId}")
     public boolean idCheck(@PathVariable String emailId) {
         System.out.println(emailId);
