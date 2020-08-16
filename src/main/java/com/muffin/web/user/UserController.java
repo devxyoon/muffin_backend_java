@@ -53,4 +53,18 @@ public class UserController {
         }
     }
 
+    @PostMapping("/delete")
+    public ResponseEntity<User> delete(@RequestBody User user) {
+        Optional<User> findUser = userService.findById(user.getId());
+        if(findUser.isPresent()) {
+            System.out.println(findUser.get());
+            userService.delete(findUser.get());
+            System.out.println(findUser.get());
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
 }

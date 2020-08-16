@@ -51,7 +51,7 @@ public class InvestProfileServiceImpl implements InvestProfileService {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(InvestProfile investProfile) {
 
     }
 
