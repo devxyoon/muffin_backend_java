@@ -1,6 +1,8 @@
 package com.muffin.web.board;
 
 import com.muffin.web.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -14,6 +16,11 @@ public class BoardController {
 
     public BoardController(BoardService boardService) {
         this.boardService = boardService;
+    }
+
+    @GetMapping("/recentBoard")
+    public Page<Board> recentBoard() {
+        return boardService.recentBoard();
     }
 
     @GetMapping("/csv")

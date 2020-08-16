@@ -1,18 +1,20 @@
 package com.muffin.web.board;
 
-import com.muffin.web.comment.Comment;
 import com.muffin.web.user.UserRepository;
 import com.muffin.web.util.GenericService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 interface BoardService extends GenericService<Board> {
@@ -26,6 +28,8 @@ interface BoardService extends GenericService<Board> {
     Iterable<Board> findBySearchword(String searchword, String condition);
 
     Iterable<Board> findByUserId(Long id);
+
+    Page<Board> recentBoard();
 }
 
 @Service
@@ -41,27 +45,27 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Optional<Board> findById(Long id) {
-        return Optional.empty();
+        return repository.findById(id);
     }
 
     @Override
     public Iterable<Board> findAll() {
-        return null;
+        return repository.findAll();
     }
 
     @Override
     public int count() {
-        return 0;
+        return (int)repository.count();
     }
 
     @Override
     public void delete(Board board) {
-
+        repository.delete(board);
     }
 
     @Override
     public boolean exists(String id) {
-        return false;
+        return repository.existsById(Long.parseLong(id));
     }
 
     @Override
@@ -89,7 +93,8 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public void save(BoardVO board) {
-
+        Board b = new Board(board.getBoardTitle(), board.getBoardContent(), board.getBoardRegdate(), board.getViewCnt(), board.getUser(), new ArrayList<>());
+        repository.save(b);
     }
 
     @Override
@@ -105,5 +110,13 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public Iterable<Board> findByUserId(Long id) {
         return null;
+    }
+
+    @Override
+    public Page<Board> recentBoard() {
+        Pageable paging = PageRequest.of(0, 5, Sort.Direction.DESC, "id");
+        Page<Board> list = repository.findByIdGreaterThan(0L, paging);
+        list.forEach(System.out::println);
+        return list;
     }
 }
