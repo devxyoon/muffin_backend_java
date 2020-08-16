@@ -31,9 +31,11 @@ public class Comment {
     }
 
     @Builder
-    public Comment(String commentContent, String commentRegdate) {
+    public Comment(String commentContent, String commentRegdate, User user, Board board) {
         this.commentContent = commentContent;
         this.commentRegdate = commentRegdate;
+        this.user = user;
+        this.board = board;
     }
 
     @ManyToOne @JoinColumn(name="user_id")
