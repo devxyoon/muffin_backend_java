@@ -2,11 +2,13 @@ package com.muffin.web.board;
 
 import com.muffin.web.user.User;
 import com.muffin.web.util.Pagination;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/boards")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -14,11 +16,6 @@ public class BoardController {
 
     private final BoardService boardService;
     private final Pagination pagination;
-
-    public BoardController(BoardService boardService, Pagination pagination) {
-        this.boardService = boardService;
-        this.pagination = pagination;
-    }
 
     @GetMapping("/pagination/{page}/{range}")
     public Map<?,?> pagination(@PathVariable int page, @PathVariable int range) {
@@ -33,7 +30,6 @@ public class BoardController {
     public Page<Board> recentBoard() {
         return boardService.recentBoard();
     }
-
 
     @GetMapping("/csv")
     public void csvRead() {
@@ -56,13 +52,17 @@ public class BoardController {
     }
 
     @GetMapping("/search/{searchword}/{condition}")
-    public Iterable<Board> search(@PathVariable String searchword, String condition) {
+    public Iterable<Board> search(@PathVariable String searchword,@PathVariable String condition) {
         return boardService.findBySearchword(searchword, condition);
     }
 
-    @PostMapping("/myBoard")
-    public Iterable<Board> myBoard(@RequestBody User user) {
-        return boardService.findByUserId(user.getId());
+    @PostMapping("/myBoard/{page}/{range}")
+    public Map<?,?> myBoard(@RequestBody User user, @PathVariable int page, @PathVariable int range) {
+        pagination.pageInfo(page, range, boardService.findAllBoardsByUserId(user.getId()).size());
+        Map<String, Object> box = new HashMap<>();
+        box.put("pagination", pagination);
+        box.put("list", boardService.findByUserId(user.getId(), pagination));
+        return box;
     }
 
     @PostMapping("/update")

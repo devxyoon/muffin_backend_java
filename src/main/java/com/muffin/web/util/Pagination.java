@@ -19,7 +19,7 @@ public class Pagination {
         this.page = page;
         this.range = range;
         this.listCnt = listCnt;
-        this.pageCnt = (int) Math.ceil(listCnt/listSize);
+        this.pageCnt = (listCnt % listSize != 0) ? (listCnt/listSize + 1) : (listCnt/listSize);;
         this.startPage = (range-1) * rangeSize + 1;
         this.endPage = range * rangeSize;
         this.startList = (page - 1) * listSize;

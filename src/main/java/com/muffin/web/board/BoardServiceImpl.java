@@ -8,7 +8,6 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +28,13 @@ interface BoardService extends GenericService<Board> {
 
     Iterable<Board> findBySearchword(String searchword, String condition);
 
-    Iterable<Board> findByUserId(Long id);
+    List<BoardVO> findByUserId(long id, Pagination pagination);
 
     Page<Board> recentBoard();
 
     List<BoardVO> pagination(Pagination pagination);
+
+    List<Board> findAllBoardsByUserId(long id);
 }
 
 @Service
@@ -112,8 +113,26 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Iterable<Board> findByUserId(Long id) {
-        return null;
+    public List<BoardVO> findByUserId(long id, Pagination pagination) {
+        List<BoardVO> result = new ArrayList<>();
+        Iterable<Board> myBoard = repository.findAllBoardsByUserIdPagination(id, pagination);
+        myBoard.forEach(board -> {
+            BoardVO vo = new BoardVO();
+            vo.setId(board.getId());
+            vo.setBoardTitle(board.getBoardTitle());
+            vo.setBoardContent(board.getBoardContent());
+            vo.setBoardRegdate(board.getBoardRegdate());
+            vo.setViewCnt(board.getViewCnt());
+            vo.setNickname(board.getUser().getNickname());
+            vo.setUserId(board.getUser().getId());
+            if(vo.getCommentList() == null) {
+                vo.setCommentList(new ArrayList<>());
+            } else {
+                vo.getCommentList().addAll(board.getCommentList());
+            }
+            result.add(vo);
+        });
+        return result;
     }
 
     @Override
@@ -143,5 +162,10 @@ public class BoardServiceImpl implements BoardService {
             result.add(vo);
         }
         return result;
+    }
+
+    @Override
+    public List<Board> findAllBoardsByUserId(long id) {
+        return repository.findAllBoardsByUserId(id);
     }
 }
