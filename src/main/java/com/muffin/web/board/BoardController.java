@@ -1,11 +1,11 @@
 package com.muffin.web.board;
 
 import com.muffin.web.user.User;
+import com.muffin.web.util.Pagination;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/boards")
@@ -13,15 +13,27 @@ import java.util.Optional;
 public class BoardController {
 
     private final BoardService boardService;
+    private final Pagination pagination;
 
-    public BoardController(BoardService boardService) {
+    public BoardController(BoardService boardService, Pagination pagination) {
         this.boardService = boardService;
+        this.pagination = pagination;
+    }
+
+    @GetMapping("/pagination/{page}/{range}")
+    public Map<?,?> pagination(@PathVariable int page, @PathVariable int range) {
+        pagination.pageInfo(page, range, boardService.count());
+        Map<String, Object> box = new HashMap<>();
+        box.put("pagination", pagination);
+        box.put("list", boardService.pagination(pagination));
+        return box;
     }
 
     @GetMapping("/recentBoard")
     public Page<Board> recentBoard() {
         return boardService.recentBoard();
     }
+
 
     @GetMapping("/csv")
     public void csvRead() {
@@ -49,7 +61,7 @@ public class BoardController {
     }
 
     @PostMapping("/myBoard")
-    public Iterable<Board> myBoasrd(@RequestBody User user) {
+    public Iterable<Board> myBoard(@RequestBody User user) {
         return boardService.findByUserId(user.getId());
     }
 

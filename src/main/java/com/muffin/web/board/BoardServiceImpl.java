@@ -2,6 +2,7 @@ package com.muffin.web.board;
 
 import com.muffin.web.user.UserRepository;
 import com.muffin.web.util.GenericService;
+import com.muffin.web.util.Pagination;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -15,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 interface BoardService extends GenericService<Board> {
@@ -30,6 +32,8 @@ interface BoardService extends GenericService<Board> {
     Iterable<Board> findByUserId(Long id);
 
     Page<Board> recentBoard();
+
+    List<BoardVO> pagination(Pagination pagination);
 }
 
 @Service
@@ -114,9 +118,30 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Page<Board> recentBoard() {
-        Pageable paging = PageRequest.of(0, 5, Sort.Direction.DESC, "id");
-        Page<Board> list = repository.findByIdGreaterThan(0L, paging);
-        list.forEach(System.out::println);
-        return list;
+        return repository.findByIdGreaterThan(0L, PageRequest.of(0, 5, Sort.Direction.DESC, "id"));
+    }
+
+    @Override
+    public List<BoardVO> pagination(Pagination pagination) {
+        List<BoardVO> result = new ArrayList<>();
+        List<Board> list = repository.pagination(pagination);
+        BoardVO vo = null;
+        for(Board b : list){
+            vo = new BoardVO();
+            vo.setId(b.getId());
+            vo.setBoardTitle(b.getBoardTitle());
+            vo.setBoardContent(b.getBoardContent());
+            vo.setBoardRegdate(b.getBoardRegdate());
+            vo.setViewCnt(b.getViewCnt());
+            vo.setNickname(b.getUser().getNickname());
+            vo.setUserId(b.getUser().getId());
+            if(vo.getCommentList() == null) {
+                vo.setCommentList(new ArrayList<>());
+            } else {
+                vo.getCommentList().addAll(b.getCommentList());
+            }
+            result.add(vo);
+        }
+        return result;
     }
 }
