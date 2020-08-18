@@ -33,7 +33,7 @@ public class CommentController {
 
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable Long id) {
-        commentService.delete(commentService.findById(id).get());
+        commentService.delete(commentService.findByComment(id).get());
     }
 
 }

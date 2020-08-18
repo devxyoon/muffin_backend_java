@@ -4,6 +4,7 @@ import com.muffin.web.util.Box;
 import com.muffin.web.util.GenericService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 interface CommentService extends GenericService<Comment> {
@@ -13,12 +14,14 @@ interface CommentService extends GenericService<Comment> {
     Iterable<Comment> findByUserId(Long id);
 
     Optional<Comment> update(CommentVO comment);
+
+    Optional<Comment> findByComment(Long id);
 }
 
 @Service
 public class CommentServiceImpl implements CommentService {
     @Override
-    public Optional<Comment> findById(Long id) {
+    public Optional<Comment> findByComment(Long id) {
         return Optional.empty();
     }
 

@@ -18,6 +18,8 @@ interface UserService extends GenericService<User> {
     Optional<User> findByEmailId(String emailId);
 
     void readCsv();
+
+    Optional<User> findByUserId(Long userId);
 }
 
 @Service
@@ -61,7 +63,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findById(Long id) {
+    public Optional<User> findByUserId(Long id) {
         return repository.findById(id);
     }
 

@@ -27,6 +27,8 @@ interface AssetService extends GenericService<Asset> {
     List<TranscationLogVO> transacList();
 
     List<Integer> getOnesTotal();
+
+    Optional<Asset> findByAssetId(Long id);
 }
 
 @Service
@@ -97,7 +99,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Optional<Asset> findById(Long id) {
+    public Optional<Asset> findByAssetId(Long id) {
         return Optional.empty();
     }
 

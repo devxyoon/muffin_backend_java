@@ -6,7 +6,6 @@ import com.muffin.web.util.Pagination;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -24,17 +23,21 @@ interface BoardService extends GenericService<Board> {
 
     void save(BoardVO board);
 
-    Optional<Board> update(BoardVO board);
-
     List<Board> findBySearchWord(String searchWord, String condition);
 
-    List<BoardVO> findByUserId(long id, Pagination pagination);
+    List<BoardVO> findByEmailId(long id, Pagination pagination);
 
     List<BoardVO> recentBoard();
 
     List<BoardVO> pagination(Pagination pagination);
 
     List<Board> findAllBoardsByUserId(long id);
+
+    Optional<Board> findByBoardId(Long id);
+
+    void update(BoardVO board);
+
+    Object findBySearchWordPage(String searchWord, String condition, Pagination pagination);
 }
 
 @Service
@@ -49,8 +52,59 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Optional<Board> findById(Long id) {
+    public Optional<Board> findByBoardId(Long id) {
         return repository.findById(id);
+    }
+
+    @Override
+    public void update(BoardVO board) {
+        Board b = null;
+        Optional<Board> findBoard = repository.findById(board.getBoardId());
+        b = findBoard.orElseGet(Board::new);
+        b.setUser(userRepository.findById(board.getUserId()).get());
+        b.setBoardContent(board.getBoardContent());
+        b.setBoardRegdate(board.getBoardRegdate());
+        b.setBoardTitle(board.getBoardTitle());
+        System.out.println(board.getCommentList());
+        if(b.getCommentList().size() != 0 && board.getCommentList() != null) {
+            b.getCommentList().addAll(board.getCommentList());
+        }
+        b.setViewCnt(board.getViewCnt());
+        repository.save(b);
+    }
+
+    @Override
+    public List<BoardVO> findBySearchWordPage(String searchWord, String condition, Pagination pagination) {
+        List<BoardVO> result = new ArrayList<>();
+        Iterable<Board> findBoard = null;
+        switch(condition) {
+            case "boardTitle": findBoard = repository.selectByBoardTitleLikeSearchWordPage(searchWord, pagination);
+                break;
+            case "nickname": findBoard =  repository.findByNicknameLikeSearchWordPage(searchWord, pagination);
+                break;
+            default: return null;
+        }
+        return getBoardVOS(result, findBoard);
+    }
+
+    private List<BoardVO> getBoardVOS(List<BoardVO> result, Iterable<Board> findBoard) {
+        findBoard.forEach(board -> {
+            BoardVO vo = new BoardVO();
+            vo.setBoardId(board.getBoardId());
+            vo.setBoardTitle(board.getBoardTitle());
+            vo.setBoardContent(board.getBoardContent());
+            vo.setBoardRegdate(board.getBoardRegdate());
+            vo.setViewCnt(board.getViewCnt());
+            vo.setNickname(board.getUser().getNickname());
+            vo.setUserId(board.getUser().getUserId());
+            if(board.getCommentList().size() == 0 || board.getCommentList() == null) {
+                vo.setCommentList(new ArrayList<>());
+            } else {
+                vo.getCommentList().addAll(board.getCommentList());
+            }
+            result.add(vo);
+        });
+        return result;
     }
 
     @Override
@@ -103,88 +157,33 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Optional<Board> update(BoardVO board) {
-        return Optional.empty();
-    }
-
-    @Override
     public List<Board> findBySearchWord(String searchWord, String condition) {
         switch(condition) {
             case "boardTitle": return repository.selectByBoardTitleLikeSearchWord(searchWord);
-/*            case "nickname": return repository.findByNicknameLikeSearchWord(searchWord);*/
+            case "nickname": return repository.findByNicknameLikeSearchWord(searchWord);
             default: return null;
         }
     }
 
     @Override
-    public List<BoardVO> findByUserId(long id, Pagination pagination) {
+    public List<BoardVO> findByEmailId(long id, Pagination pagination) {
         List<BoardVO> result = new ArrayList<>();
         Iterable<Board> myBoard = repository.findAllBoardsByUserIdPagination(id, pagination);
-        myBoard.forEach(board -> {
-            BoardVO vo = new BoardVO();
-            vo.setBoardId(board.getBoardId());
-            vo.setBoardTitle(board.getBoardTitle());
-            vo.setBoardContent(board.getBoardContent());
-            vo.setBoardRegdate(board.getBoardRegdate());
-            vo.setViewCnt(board.getViewCnt());
-            vo.setNickname(board.getUser().getNickname());
-            vo.setUserId(board.getUser().getUserId());
-            if(vo.getCommentList() == null) {
-                vo.setCommentList(new ArrayList<>());
-            } else {
-                vo.getCommentList().addAll(board.getCommentList());
-            }
-            result.add(vo);
-        });
-        return result;
+        return getBoardVOS(result, myBoard);
     }
 
     @Override
     public List<BoardVO> recentBoard() {
         List<BoardVO> result = new ArrayList<>();
-        BoardVO vo = null;
-        for (Board b : repository.findByBoardIdGreaterThan(0L, PageRequest.of(0, 5, Sort.Direction.DESC, "boardId"))) {
-            vo = new BoardVO();
-            vo = new BoardVO();
-            vo.setBoardId(b.getBoardId());
-            vo.setBoardTitle(b.getBoardTitle());
-            vo.setBoardContent(b.getBoardContent());
-            vo.setBoardRegdate(b.getBoardRegdate());
-            vo.setViewCnt(b.getViewCnt());
-            vo.setNickname(b.getUser().getNickname());
-            vo.setUserId(b.getUser().getUserId());
-            if(vo.getCommentList() == null) {
-                vo.setCommentList(new ArrayList<>());
-            } else {
-                vo.getCommentList().addAll(b.getCommentList());
-            }
-            result.add(vo);
-        }
-        return result;
+        Iterable<Board> findBoard = repository.findByBoardIdGreaterThan(0L, PageRequest.of(0, 5, Sort.Direction.DESC, "boardId"));
+        return getBoardVOS(result, findBoard);
     }
 
     @Override
     public List<BoardVO> pagination(Pagination pagination) {
         List<BoardVO> result = new ArrayList<>();
-        List<Board> list = repository.pagination(pagination);
-        BoardVO vo = null;
-        for(Board b : list){
-            vo = new BoardVO();
-            vo.setBoardId(b.getBoardId());
-            vo.setBoardTitle(b.getBoardTitle());
-            vo.setBoardContent(b.getBoardContent());
-            vo.setBoardRegdate(b.getBoardRegdate());
-            vo.setViewCnt(b.getViewCnt());
-            vo.setNickname(b.getUser().getNickname());
-            vo.setUserId(b.getUser().getUserId());
-            if(vo.getCommentList() == null) {
-                vo.setCommentList(new ArrayList<>());
-            } else {
-                vo.getCommentList().addAll(b.getCommentList());
-            }
-            result.add(vo);
-        }
-        return result;
+        List<Board> findBoard = repository.pagination(pagination);
+        return getBoardVOS(result, findBoard);
     }
 
     @Override

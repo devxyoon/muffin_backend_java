@@ -12,6 +12,8 @@ interface InvestProfileService extends GenericService<InvestProfile>{
     void save(InvestProfileVO investProfile);
 
     void update(InvestProfileVO investProfile);
+
+    Optional<InvestProfile> findByInvestProfileId(Long id);
 }
 
 @Service
@@ -39,7 +41,7 @@ public class InvestProfileServiceImpl implements InvestProfileService {
     }
 
     @Override
-    public Optional<InvestProfile> findById(Long id) {
+    public Optional<InvestProfile> findByInvestProfileId(Long id) {
         return Optional.empty();
     }
 
