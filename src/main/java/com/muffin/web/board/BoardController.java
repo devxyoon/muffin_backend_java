@@ -51,17 +51,21 @@ public class BoardController {
         return boardService.findById(id);
     }
 
-    @GetMapping("/search/{searchword}/{condition}")
-    public Iterable<Board> search(@PathVariable String searchword,@PathVariable String condition) {
-        return boardService.findBySearchword(searchword, condition);
+    @GetMapping("/search/{searchWord}/{condition}/{page}/{range}")
+    public Map<?,?> search(@PathVariable String searchWord,@PathVariable String condition, @PathVariable int page, @PathVariable int range) {
+        pagination.pageInfo(page, range, boardService.findBySearchWord(searchWord, condition).size());
+        Map<String, Object> box = new HashMap<>();
+        box.put("pagination", pagination);
+        box.put("list", null);
+        return box;
     }
 
     @PostMapping("/myBoard/{page}/{range}")
     public Map<?,?> myBoard(@RequestBody User user, @PathVariable int page, @PathVariable int range) {
-        pagination.pageInfo(page, range, boardService.findAllBoardsByUserId(user.getId()).size());
+        pagination.pageInfo(page, range, boardService.findAllBoardsByUserId(user.getUserId()).size());
         Map<String, Object> box = new HashMap<>();
         box.put("pagination", pagination);
-        box.put("list", boardService.findByUserId(user.getId(), pagination));
+        box.put("list", boardService.findByUserId(user.getUserId(), pagination));
         return box;
     }
 

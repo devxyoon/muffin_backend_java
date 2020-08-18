@@ -26,7 +26,7 @@ interface BoardService extends GenericService<Board> {
 
     Optional<Board> update(BoardVO board);
 
-    Iterable<Board> findBySearchword(String searchword, String condition);
+    List<Board> findBySearchWord(String searchWord, String condition);
 
     List<BoardVO> findByUserId(long id, Pagination pagination);
 
@@ -108,8 +108,12 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Iterable<Board> findBySearchword(String searchword, String condition) {
-        return null;
+    public List<Board> findBySearchWord(String searchWord, String condition) {
+        switch(condition) {
+            case "boardTitle": return repository.selectTByBoardTitleLikeSearchWord(searchWord);
+/*            case "nickname": return repository.findByNicknameLikeSearchWord(searchWord);*/
+            default: return null;
+        }
     }
 
     @Override
@@ -118,13 +122,13 @@ public class BoardServiceImpl implements BoardService {
         Iterable<Board> myBoard = repository.findAllBoardsByUserIdPagination(id, pagination);
         myBoard.forEach(board -> {
             BoardVO vo = new BoardVO();
-            vo.setId(board.getId());
+            vo.setBoardId(board.getBoardId());
             vo.setBoardTitle(board.getBoardTitle());
             vo.setBoardContent(board.getBoardContent());
             vo.setBoardRegdate(board.getBoardRegdate());
             vo.setViewCnt(board.getViewCnt());
             vo.setNickname(board.getUser().getNickname());
-            vo.setUserId(board.getUser().getId());
+            vo.setUserId(board.getUser().getUserId());
             if(vo.getCommentList() == null) {
                 vo.setCommentList(new ArrayList<>());
             } else {
@@ -137,7 +141,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public Page<Board> recentBoard() {
-        return repository.findByIdGreaterThan(0L, PageRequest.of(0, 5, Sort.Direction.DESC, "id"));
+        return repository.findByBoardIdGreaterThan(0L, PageRequest.of(0, 5, Sort.Direction.DESC, "id"));
     }
 
     @Override
@@ -147,13 +151,13 @@ public class BoardServiceImpl implements BoardService {
         BoardVO vo = null;
         for(Board b : list){
             vo = new BoardVO();
-            vo.setId(b.getId());
+            vo.setBoardId(b.getBoardId());
             vo.setBoardTitle(b.getBoardTitle());
             vo.setBoardContent(b.getBoardContent());
             vo.setBoardRegdate(b.getBoardRegdate());
             vo.setViewCnt(b.getViewCnt());
             vo.setNickname(b.getUser().getNickname());
-            vo.setUserId(b.getUser().getId());
+            vo.setUserId(b.getUser().getUserId());
             if(vo.getCommentList() == null) {
                 vo.setCommentList(new ArrayList<>());
             } else {

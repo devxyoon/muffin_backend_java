@@ -33,20 +33,20 @@ public class BoardRepositoryImpl extends QuerydslRepositorySupport implements IB
     @Override
     public List<Board> pagination(Pagination pagination) {
         QBoard qb = QBoard.board;
-        return queryFactory.selectFrom(qb).orderBy(qb.id.desc())
+        return queryFactory.selectFrom(qb).orderBy(qb.boardId.desc())
                 .offset(pagination.getStartList()).limit(pagination.getListSize()).fetch();
     }
 
     @Override
     public Iterable<Board> findAllBoardsByUserIdPagination(long id, Pagination pagination) {
         QBoard qb = QBoard.board;
-        return queryFactory.selectFrom(qb).where(qb.user.id.eq(id)).orderBy(qb.id.desc())
+        return queryFactory.selectFrom(qb).where(qb.user.userId.eq(id)).orderBy(qb.boardId.desc())
                 .offset(pagination.getStartList()).limit(pagination.getListSize()).fetch();
     }
 
     @Override
     public List<Board> findAllBoardsByUserId(long id) {
         QBoard qb = QBoard.board;
-        return queryFactory.selectFrom(qb).where(qb.user.id.eq(id)).fetch();
+        return queryFactory.selectFrom(qb).where(qb.user.userId.eq(id)).fetch();
     }
 }

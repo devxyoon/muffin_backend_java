@@ -23,7 +23,7 @@ public class CommentController {
 
     @PostMapping("/myComment")
     public Iterable<Comment> myComment(@RequestBody User user) {
-        return commentService.findByUserId(user.getId());
+        return commentService.findByUserId(user.getUserId());
     }
 
     @PostMapping("/update")

@@ -48,7 +48,7 @@ public class UserController {
     @PostMapping("/update")
     public ResponseEntity<User> update(@RequestBody User user) {
         System.out.println(user);
-        Optional<User> findUser = userService.findById(user.getId());
+        Optional<User> findUser = userService.findById(user.getUserId());
         if (findUser.isPresent()) {
             User returnUser = findUser.get();
             Optional.ofNullable(user.getPassword()).ifPresent(returnUser::setPassword);
@@ -61,7 +61,7 @@ public class UserController {
 
     @PostMapping("/delete")
     public ResponseEntity<User> delete(@RequestBody User user) {
-        Optional<User> findUser = userService.findById(user.getId());
+        Optional<User> findUser = userService.findById(user.getUserId());
         if(findUser.isPresent()) {
             System.out.println(findUser.get());
             userService.delete(findUser.get());

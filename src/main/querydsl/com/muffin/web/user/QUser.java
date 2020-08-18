@@ -30,8 +30,6 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath emailId = createString("emailId");
 
-    public final NumberPath<Long> id = createNumber("id", Long.class);
-
     public final com.muffin.web.investProfile.QInvestProfile investProfile;
 
     public final StringPath name = createString("name");
@@ -41,6 +39,8 @@ public class QUser extends EntityPathBase<User> {
     public final StringPath nickname = createString("nickname");
 
     public final StringPath password = createString("password");
+
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QUser(String variable) {
         this(User.class, forVariable(variable), INITS);
