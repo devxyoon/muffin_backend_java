@@ -30,7 +30,7 @@ interface BoardService extends GenericService<Board> {
 
     List<BoardVO> findByUserId(long id, Pagination pagination);
 
-    Page<Board> recentBoard();
+    List<BoardVO> recentBoard();
 
     List<BoardVO> pagination(Pagination pagination);
 
@@ -110,7 +110,7 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public List<Board> findBySearchWord(String searchWord, String condition) {
         switch(condition) {
-            case "boardTitle": return repository.selectTByBoardTitleLikeSearchWord(searchWord);
+            case "boardTitle": return repository.selectByBoardTitleLikeSearchWord(searchWord);
 /*            case "nickname": return repository.findByNicknameLikeSearchWord(searchWord);*/
             default: return null;
         }
@@ -140,8 +140,27 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Page<Board> recentBoard() {
-        return repository.findByBoardIdGreaterThan(0L, PageRequest.of(0, 5, Sort.Direction.DESC, "id"));
+    public List<BoardVO> recentBoard() {
+        List<BoardVO> result = new ArrayList<>();
+        BoardVO vo = null;
+        for (Board b : repository.findByBoardIdGreaterThan(0L, PageRequest.of(0, 5, Sort.Direction.DESC, "boardId"))) {
+            vo = new BoardVO();
+            vo = new BoardVO();
+            vo.setBoardId(b.getBoardId());
+            vo.setBoardTitle(b.getBoardTitle());
+            vo.setBoardContent(b.getBoardContent());
+            vo.setBoardRegdate(b.getBoardRegdate());
+            vo.setViewCnt(b.getViewCnt());
+            vo.setNickname(b.getUser().getNickname());
+            vo.setUserId(b.getUser().getUserId());
+            if(vo.getCommentList() == null) {
+                vo.setCommentList(new ArrayList<>());
+            } else {
+                vo.getCommentList().addAll(b.getCommentList());
+            }
+            result.add(vo);
+        }
+        return result;
     }
 
     @Override

@@ -27,7 +27,7 @@ public class BoardController {
     }
 
     @GetMapping("/recentBoard")
-    public Page<Board> recentBoard() {
+    public List<BoardVO> recentBoard() {
         return boardService.recentBoard();
     }
 
@@ -74,8 +74,8 @@ public class BoardController {
         return boardService.update(board);
     }
 
-    @GetMapping("/delete/{id}")
-    public void delete(@PathVariable Long id) {
-        boardService.delete(boardService.findById(id).get());
+    @GetMapping("/delete/{boardId}")
+    public void delete(@PathVariable Long boardId) {
+        boardService.delete(boardService.findById(boardId).get());
     }
 }

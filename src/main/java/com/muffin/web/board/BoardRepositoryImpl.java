@@ -15,6 +15,8 @@ interface IBoardRepository {
     Iterable<Board> findAllBoardsByUserIdPagination(long id, Pagination pagination);
 
     List<Board> findAllBoardsByUserId(long id);
+
+/*    List<Board> findByNicknameLikeSearchWord(String searchWord);*/
 }
 
 @Repository
@@ -49,4 +51,13 @@ public class BoardRepositoryImpl extends QuerydslRepositorySupport implements IB
         QBoard qb = QBoard.board;
         return queryFactory.selectFrom(qb).where(qb.user.userId.eq(id)).fetch();
     }
+
+/*    @Override
+    public List<Board> findByNicknameLikeSearchWord(String searchWord) {
+        QBoard qb = QBoard.board;
+  *//*      selectJoin = queryFactory.selectFrom()*
+
+   *//*
+        return null;
+    }*/
 }
