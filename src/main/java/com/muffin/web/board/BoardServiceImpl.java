@@ -1,8 +1,10 @@
 package com.muffin.web.board;
 
+import com.muffin.web.comment.CommentRepository;
 import com.muffin.web.user.UserRepository;
 import com.muffin.web.util.GenericService;
 import com.muffin.web.util.Pagination;
+import lombok.AllArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -41,15 +43,12 @@ interface BoardService extends GenericService<Board> {
 }
 
 @Service
+@AllArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository repository;
     private final UserRepository userRepository;
-
-    public BoardServiceImpl(BoardRepository repository, UserRepository userRepository) {
-        this.repository = repository;
-        this.userRepository = userRepository;
-    }
+    private final CommentRepository commentRepository;
 
     @Override
     public Optional<Board> findByBoardId(Long id) {
@@ -65,10 +64,6 @@ public class BoardServiceImpl implements BoardService {
         b.setBoardContent(board.getBoardContent());
         b.setBoardRegdate(board.getBoardRegdate());
         b.setBoardTitle(board.getBoardTitle());
-        System.out.println(board.getCommentList());
-        if(b.getCommentList().size() != 0 && board.getCommentList() != null) {
-            b.getCommentList().addAll(board.getCommentList());
-        }
         b.setViewCnt(board.getViewCnt());
         repository.save(b);
     }
@@ -100,7 +95,7 @@ public class BoardServiceImpl implements BoardService {
             if(board.getCommentList().size() == 0 || board.getCommentList() == null) {
                 vo.setCommentList(new ArrayList<>());
             } else {
-                vo.getCommentList().addAll(board.getCommentList());
+                vo.setCommentList(board.getCommentList());
             }
             result.add(vo);
         });
@@ -135,14 +130,17 @@ public class BoardServiceImpl implements BoardService {
             CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT);
             Iterable<CSVRecord> csvRecords = csvParser.getRecords();
             for(CSVRecord csvRecord : csvRecords){
+                long i = 1;
                 repository.save(new Board(
                         csvRecord.get(1),
                         csvRecord.get(2),
                         csvRecord.get(3),
                         Integer.parseInt(csvRecord.get(4)),
                                 userRepository.findById(Long.parseLong(csvRecord.get(5))+1).get(),
-                                new ArrayList<>())
+                                commentRepository.findByBoardId(i)
+                                )
                          );
+                i = i + 1;
             }
         } catch (Exception e) {
             e.printStackTrace();

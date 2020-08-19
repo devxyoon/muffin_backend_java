@@ -2,7 +2,6 @@ package com.muffin.web.user;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import com.muffin.web.util.Box;
 import com.muffin.web.util.GenericService;
 import org.springframework.stereotype.Service;
 

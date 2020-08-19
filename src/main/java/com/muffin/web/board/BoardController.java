@@ -77,7 +77,6 @@ public class BoardController {
 
     @PostMapping("/update")
     public void update(@RequestBody BoardVO board) {
-        System.out.println(board);
         boardService.update(board);
     }
 
