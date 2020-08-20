@@ -36,6 +36,7 @@ public class UserController {
 
     @PostMapping("/signIn")
     public ResponseEntity<User> login(@RequestBody User user) {
+        System.out.println(user);
         Optional<User> findUser = userService.findByEmailId(user.getEmailId());
         if (findUser.isPresent()) {
             User returnUser = findUser.get();
