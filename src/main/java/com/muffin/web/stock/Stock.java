@@ -1,6 +1,8 @@
 package com.muffin.web.stock;
 
 import com.muffin.web.asset.Asset;
+import com.muffin.web.board.Board;
+import com.muffin.web.user.User;
 import lombok.*;
 
 import javax.persistence.*;
