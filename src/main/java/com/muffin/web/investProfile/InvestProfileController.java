@@ -32,7 +32,7 @@ public class InvestProfileController {
 
     @GetMapping("/findOne/{userId}")
     public InvestProfile findOne(@PathVariable Long userId){
-        System.out.println(userId);
+        System.out.println(investProfileService.findOne(userId));
         return investProfileService.findOne(userId);
     }
 }
