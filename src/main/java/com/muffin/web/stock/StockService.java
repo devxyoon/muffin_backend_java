@@ -103,7 +103,6 @@ class StockServiceImpl implements StockService {
 
     @Override
     public List<CrawledStockVO> allStock() {
-        logger.info("StockServiceImpl : allStock()");
         List<CrawledStockVO> cralwedResults = new ArrayList<>();
 //        List<String> listedSymbols = repository.findAllSymbol();
 //        for(String stockCode: listedSymbols){
@@ -119,14 +118,12 @@ class StockServiceImpl implements StockService {
 
     @Override
     public CrawledStockVO getOneStock(String symbol) {
-        logger.info("StockServiceImpl : CrawledStockVO getOneStock(String " + symbol + " )");
         CrawledStockVO vo = stockCrawling(symbol);
         return vo;
     }
 
 
     private CrawledStockVO stockCrawling(String stockCode) {
-        logger.info("StockServiceImpl : stockCrawling( " + stockCode + " )");
         CrawledStockVO vo = null;
         try {
             String url = "https://finance.naver.com/item/main.nhn?code=" + stockCode;

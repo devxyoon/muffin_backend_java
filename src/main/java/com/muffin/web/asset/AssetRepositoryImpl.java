@@ -59,7 +59,6 @@ public class AssetRepositoryImpl extends QuerydslRepositorySupport implements IA
 
     @Override
     public Asset showOneData(Long userId) {
-        logger.info("AssetRepositoryImpl : public List<Integer> showOneData()");
         return queryFactory.select(Projections.fields(Asset.class,
                 asset.shareCount))
                 .from(asset)
@@ -90,7 +89,6 @@ public class AssetRepositoryImpl extends QuerydslRepositorySupport implements IA
 
     @Override
     public List<Asset> findOnesAllAsset(Long userId) {
-        logger.info("AssetRepositoryImpl : findOnesAllAsset()");
         return queryFactory.select(Projections.fields(Asset.class,
                 asset.purchasePrice,
                 asset.shareCount,
@@ -117,7 +115,6 @@ public class AssetRepositoryImpl extends QuerydslRepositorySupport implements IA
 
     @Override
     public Integer getRecentTotal(Long userId) {
-        logger.info("AssetRepositoryImpl : getRecentTotal()");
         return queryFactory.select(
                 asset.totalAsset)
                 .from(asset)
@@ -131,7 +128,6 @@ public class AssetRepositoryImpl extends QuerydslRepositorySupport implements IA
 
     @Override
     public Asset getRecentProfit(Long userId) {
-        logger.info("getRecentProfit(Long userId)");
         return queryFactory.select(Projections.fields(Asset.class,
                 asset.totalAsset,
                 asset.totalProfit,
@@ -174,8 +170,6 @@ public class AssetRepositoryImpl extends QuerydslRepositorySupport implements IA
     @Modifying
     @Transactional
     public void deleteAsset(int shareCount) {
-        logger.info("deleteAsset");
-        logger.info(String.valueOf(shareCount));
         queryFactory.delete(asset)
                 .where(asset.shareCount.eq(shareCount))
                 .execute();
@@ -185,7 +179,6 @@ public class AssetRepositoryImpl extends QuerydslRepositorySupport implements IA
     @Modifying
     @Transactional
     public void updateAsset(TransactionLogVO update) {
-        logger.info("updateAsset" + update);
         queryFactory.update(asset)
                 .where(asset.assetId.eq(update.getAssetId()))  //assetId : 클라이언트에서 부터 null로 들어오는데, set하는 방법을 모름 or symbol : update에 조인을 어떻게 걸어요??
 //                .set(asset.assetId, update.getAssetId())

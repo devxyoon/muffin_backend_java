@@ -36,7 +36,6 @@ public class StockController {
 
     @GetMapping("/marketprices")
     public List<CrawledStockVO> getStockPrice() {
-        logger.info("/stockCrawling");
         return  stockService.allStock();
     }
 

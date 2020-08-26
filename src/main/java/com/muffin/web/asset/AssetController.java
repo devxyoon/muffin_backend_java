@@ -35,13 +35,14 @@ public class AssetController {
         logger.info("/asset/test AssetController");
     }
 
-    @GetMapping("/pagination/{page}/{range}")
-    public Map<?, ?> pagination(@PathVariable int page, @PathVariable int range) {
+    @GetMapping("/pagination/{page}/{range}/{userId}")
+    public Map<?, ?> pagination(@PathVariable int page, @PathVariable int range, @PathVariable Long userId) {
         System.out.println(page + ", " + range);
-        pagination.pageInfo(page, range, assetService.count());
+        pagination.pageInfo(page, range, assetService.historyCount(userId));
         Map<String, Object> box = new HashMap<>();
         box.put("pagination", pagination);
-        box.put("list", assetService.pagination(pagination));
+        System.out.println(assetService.paginationHistory(pagination, userId));
+        box.put("list", assetService.paginationHistory(pagination, userId));
         return box;
     }
 
@@ -63,7 +64,6 @@ public class AssetController {
 
     @GetMapping("/holdingCount/{userId}")
     public HashMap getHoling(@PathVariable Long userId) {
-        logger.info("/holingCount");
         box.clear();
         box.put("holdingCount", assetService.getOnesHoldings(userId));
         return box.get();

@@ -40,6 +40,10 @@ interface AssetService extends GenericService<Asset> {
 
     boolean existStock(Asset asset); // 종목 존재여부
 
+    int historyCount(Long userId);
+
+    List<TransactionVO> paginationHistory(Pagination pagination, Long userId);
+
 }
 
 @AllArgsConstructor
@@ -51,6 +55,7 @@ public class AssetServiceImpl implements AssetService {
     private final UserRepository userRepository;
     private final StockRepository stockRepository;
     private final StockService stockService;
+    private final TransactionRepository transactionRepository;
     private Box box;
 
 
@@ -74,6 +79,13 @@ public class AssetServiceImpl implements AssetService {
                         userRepository.findById(Long.parseLong(csvRecord.get(7))).get(),
                         stockRepository.findById(Long.parseLong(csvRecord.get(8))).get()
                 ));
+                transactionRepository.save(new Transaction(
+                        stockRepository.findById(Long.parseLong(csvRecord.get(8))).get().getStockName(),
+                        Integer.parseInt(csvRecord.get(0)),
+                        csvRecord.get(5),
+                        csvRecord.get(6),
+                        Long.parseLong(csvRecord.get(7)
+                        ),Integer.parseInt(csvRecord.get(3))));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,7 +133,6 @@ public class AssetServiceImpl implements AssetService {
     // 보유한 주식 하나의 손익 계산
     private List calculrateProfit(Long userId, String symbol) {
         List result = new ArrayList();
-        logger.info("...calculrating... oneStock... profit...");
 
         Integer nowPrice = Integer.parseInt(stockService.getOneStock(symbol).getNow().replaceAll(",", ""));
         List<Integer> purchaseShares = new ArrayList<>();
@@ -170,7 +181,6 @@ public class AssetServiceImpl implements AssetService {
                 vo.setNowPrice((Integer) calculrateProfit(userId, l.getStock().getSymbol()).get(3));
                 vo.setHasAsset(true);
                 result.add(vo);
-                logger.info("~~~~getAssetId~~~~~ " +vo.getAssetId());
             } else {
                 vo = new TransactionLogVO();
                 vo.setHasAsset(false);
@@ -185,6 +195,13 @@ public class AssetServiceImpl implements AssetService {
         List<TransactionLogVO> result = new ArrayList<>();
         List<Asset> findLogs = repository.pagination(pagination);
         return getTransactionLogVOS(result, findLogs);
+    }
+
+    @Override
+    public List<TransactionVO> paginationHistory(Pagination pagination, Long userId) {
+        List<TransactionVO> result = new ArrayList<>();
+        List<Transaction> findLogs = transactionRepository.pagination(pagination, userId);
+        return getTransactionVOS(result, findLogs);
     }
 
     @Override //신규 매수
@@ -249,33 +266,33 @@ public class AssetServiceImpl implements AssetService {
     @Override // 매도
     public void sellStock(TransactionLogVO invoice) {
         logger.info("void sellStock..." + invoice);
-        TransactionLogVO asset = new TransactionLogVO();
         int recentTotal = repository.getRecentTotal(invoice.getUserId());
         int recentShareCount = repository.getOwnedShareCount(invoice.getSymbol());
         int sellCount = invoice.getShareCount();
         int money = invoice.getPurchasePrice();
         int newAmount = recentTotal + money;
         int newShareCount = recentShareCount - sellCount;
-        asset.setAssetId(invoice.getAssetId());
-        asset.setTotalAsset(newAmount);
-        asset.setShareCount(newShareCount);
+        Asset asset = repository.findById(invoice.getAssetId()).get();
         asset.setPurchasePrice(invoice.getPurchasePrice());
+        asset.setShareCount(newShareCount);
+        asset.setTotalAsset(newAmount);
+        int totalProfit = newAmount - recentTotal;
+        asset.setTotalProfit(totalProfit);
+        double totalProfitRatio = (double) Math.round((double) totalProfit / (double) recentTotal * 10000) / 100;
+        asset.setTotalProfitRatio(totalProfitRatio);
         asset.setTransactionDate(invoice.getTransactionDate());
         asset.setTransactionType(invoice.getTransactionType());
-        asset.setSymbol(invoice.getSymbol());
-        asset.setStockName(invoice.getStockName());
-        asset.setUserId(invoice.getUserId());
-
-        int totalProfit = newAmount - recentTotal;
-        double totalProfitRatio = (double) Math.round((double) totalProfit / (double) recentTotal * 10000) / 100;
-        asset.setTotalProfit(totalProfit);
-        asset.setTotalProfitRatio(totalProfitRatio);
+        asset.setUser(userRepository.findById(invoice.getUserId()).get());
+        asset.setStock(stockRepository.findById(invoice.getStockId()).get());
+        transactionRepository.save(new Transaction(invoice.getStockName(),
+                money, invoice.getTransactionDate(),
+                invoice.getTransactionType(), invoice.getUserId(), newAmount));
 
         if (newShareCount == 0) {
             logger.info("전량 매도오오" + newShareCount);
-            repository.deleteAsset(invoice.getShareCount());
+            repository.delete(asset);
         } else {
-            updateStock(asset);
+            repository.save(asset);
         }
     }
 
@@ -284,6 +301,20 @@ public class AssetServiceImpl implements AssetService {
         return repository.existsById(asset.getAssetId());
     }
 
+
+    private List<TransactionVO> getTransactionVOS(List<TransactionVO> result, Iterable<Transaction> findLogs) {
+        findLogs.forEach(transaction -> {
+            TransactionVO vo = new TransactionVO();
+            vo.setStockName(transaction.getStockName());
+            vo.setMoney(transaction.getMoney());
+            vo.setTransactionDate(transaction.getTransactionDate());
+            vo.setTransactionType(transaction.getTransactionType());
+            vo.setUserId(transaction.getUserId());
+            vo.setTotalAsset(transaction.getTotalAsset());
+            result.add(vo);
+        });
+        return result;
+    }
 
     private List<TransactionLogVO> getTransactionLogVOS(List<TransactionLogVO> result, Iterable<Asset> findLogs) {
         findLogs.forEach(asset -> {
@@ -306,6 +337,11 @@ public class AssetServiceImpl implements AssetService {
     @Override
     public int count() {
         return (int) repository.count();
+    }
+
+    @Override
+    public int historyCount(Long userId) {
+        return transactionRepository.findByUserId(userId).size();
     }
 
     @Override
