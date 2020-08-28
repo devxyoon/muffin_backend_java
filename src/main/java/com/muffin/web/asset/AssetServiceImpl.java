@@ -2,7 +2,6 @@ package com.muffin.web.asset;
 
 import com.muffin.web.stock.StockRepository;
 import com.muffin.web.stock.StockService;
-import com.muffin.web.user.User;
 import com.muffin.web.user.UserRepository;
 import com.muffin.web.util.Box;
 import com.muffin.web.util.GenericService;
@@ -32,11 +31,13 @@ interface AssetService extends GenericService<Asset> {
 
     List<TransactionLogVO> pagination(Pagination pagination); // 페이징 목록
 
-    void buyStock(TransactionLogVO asset); // 신규 매수
+    void addStock(TransactionLogVO invoice);
 
-    void updateStock(TransactionLogVO asset); // 총자산, 보유한 종목, 수량 업데이트
+    void buyStock(TransactionLogVO asset); // save list 매수
 
     void sellStock(TransactionLogVO sellOption); // 매도
+
+    void updateStock(Asset update);
 
     boolean existStock(Asset asset); // 종목 존재여부
 
@@ -91,26 +92,6 @@ public class AssetServiceImpl implements AssetService {
             e.printStackTrace();
         }
     }
-
-//    @Override
-//    public List<TransactionLogVO> transacList(Long userId) {
-//        List<TransactionLogVO> result = new ArrayList<>();
-//        List<Asset> list = repository.getTransacList(userId);
-//        TransactionLogVO vo = null;
-//
-//        for(Asset l : list){
-//            vo = new TransactionLogVO();
-//            vo.setTransactionDate(l.getTransactionDate());
-//            vo.setTransactionType(l.getTransactionType());
-//            vo.setPurchasePrice(l.getPurchasePrice());
-//            vo.setShareCount(l.getShareCount());
-//            vo.setTotalAsset(l.getTotalAsset());
-//            vo.setStockName(l.getStock().getStockName());
-//            vo.setUserId(l.getUser().getUserId());
-//            result.add(vo);
-//        }
-//        return result;
-//    }
 
     private void calculrateTotalProfit(Long userId, String symbol) {
         calculrateProfit(userId, symbol).get(1);
@@ -198,6 +179,30 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
+    public void addStock(TransactionLogVO invoice) {
+        Asset asset = new Asset();
+        int recentTotal = repository.getRecentTotal(invoice.getUserId());
+        int buyCount = invoice.getShareCount();
+        int buyAmount = invoice.getPurchasePrice();
+        int newAmount = recentTotal - buyAmount;
+        int recentShareCount = repository.getOwnedShareCount(invoice.getSymbol());
+        int newShareCount = recentShareCount + buyCount;
+        int totalProfit = newAmount - recentTotal;
+        double totalProfitRatio = (double) Math.round((double) totalProfit / (double) recentTotal * 10000) / 100;
+        asset.setTransactionType(invoice.getTransactionType());
+        asset.setTransactionDate(invoice.getTransactionDate());
+        asset.setPurchasePrice(invoice.getPurchasePrice());
+        asset.setShareCount(newShareCount);
+        asset.setTotalAsset(newAmount);
+        asset.setTotalProfit(totalProfit);
+        asset.setTotalProfitRatio(totalProfitRatio);
+        asset.setUser(userRepository.findById(invoice.getUserId()).get());
+        asset.setAssetId(invoice.getAssetId());
+        transactionRepository.save(new Transaction(invoice.getStockName(), buyAmount, invoice.getTransactionDate(), invoice.getTransactionType(), invoice.getUserId(), newAmount));
+        updateStock(asset);
+    }
+
+    @Override
     public List<TransactionVO> paginationHistory(Pagination pagination, Long userId) {
         List<TransactionVO> result = new ArrayList<>();
         List<Transaction> findLogs = transactionRepository.pagination(pagination, userId);
@@ -206,60 +211,30 @@ public class AssetServiceImpl implements AssetService {
 
     @Override //신규 매수
     public void buyStock(TransactionLogVO invoice) {
-        logger.info("buyStock.... " + invoice);
-        TransactionLogVO asset = new TransactionLogVO();
+        Asset asset = new Asset();
         int recentTotal = repository.getRecentTotal(invoice.getUserId());
-        int buyCount = invoice.getShareCount();
         int buyAmount = invoice.getPurchasePrice();
         int newAmount = recentTotal - buyAmount;
-
-        if ( repository.getOwnedShareCount(invoice.getSymbol()) == null ) {
-            int newShareCount = buyCount;
-            int totalProfit = newAmount - recentTotal;
-            double totalProfitRatio = (double) Math.round((double) totalProfit / (double) recentTotal * 10000) / 100;
-
-            asset.setAssetId(invoice.getAssetId());
-            asset.setTransactionType(invoice.getTransactionType());
-            asset.setTransactionDate(invoice.getTransactionDate());
-            asset.setPurchasePrice(invoice.getPurchasePrice());
-            asset.setSymbol(invoice.getSymbol());
-            asset.setStockName(invoice.getStockName());
-            asset.setShareCount(newShareCount);
-            asset.setTotalAsset(newAmount);
-            asset.setTotalProfit(totalProfit);
-            asset.setTotalProfitRatio(totalProfitRatio);
-            asset.setStockId(invoice.getStockId());
-            asset.setUserId(invoice.getUserId());
-
-            logger.info("no exist stock.... " + asset);
-//            repository.save(asset);
-
-        } else {
-            int recentShareCount = repository.getOwnedShareCount(invoice.getSymbol());
-            int newShareCount = recentShareCount + buyCount;
-            int totalProfit = newAmount - recentTotal;
-            double totalProfitRatio = (double) Math.round((double) totalProfit / (double) recentTotal * 10000) / 100;
-
-            asset.setAssetId(invoice.getAssetId());
-            asset.setTransactionType(invoice.getTransactionType());
-            asset.setTransactionDate(invoice.getTransactionDate());
-            asset.setPurchasePrice(invoice.getPurchasePrice());
-            asset.setSymbol(invoice.getSymbol());
-            asset.setStockName(invoice.getStockName());
-            asset.setShareCount(newShareCount);
-            asset.setTotalAsset(newAmount);
-            asset.setTotalProfit(totalProfit);
-            asset.setTotalProfitRatio(totalProfitRatio);
-            asset.setStockId(invoice.getStockId());
-            asset.setUserId(invoice.getUserId());
-
-            logger.info("exist stock...... " + asset);
-            updateStock(asset);
-        }
+        int totalProfit = newAmount - recentTotal;
+        double totalProfitRatio = (double) Math.round((double) totalProfit / (double) recentTotal * 10000) / 100;
+        asset.setTransactionType(invoice.getTransactionType());
+        asset.setTransactionDate(invoice.getTransactionDate());
+        asset.setPurchasePrice(invoice.getPurchasePrice());
+        asset.setShareCount(invoice.getShareCount());
+        asset.setTotalAsset(newAmount);
+        asset.setTotalProfit(totalProfit);
+        asset.setTotalProfitRatio(totalProfitRatio);
+        System.out.println(invoice.getStockName());
+        System.out.println(stockRepository.findByStockName(invoice.getStockName()).get());
+        asset.setStock(stockRepository.findByStockName(invoice.getStockName()).get());
+        asset.setUser(userRepository.findById(invoice.getUserId()).get());
+        transactionRepository.save(new Transaction(invoice.getStockName(), buyAmount, invoice.getTransactionDate(), invoice.getTransactionType(),
+                invoice.getUserId(), newAmount));
+        repository.save(asset);
     }
 
     @Override // 총자산, 보유한 종목, 수량 업데이트
-    public void updateStock(TransactionLogVO update) {
+    public void updateStock(Asset update) {
         repository.updateAsset(update);
     }
 

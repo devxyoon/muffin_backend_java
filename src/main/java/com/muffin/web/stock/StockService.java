@@ -36,6 +36,10 @@ public interface StockService extends GenericService<Stock> {
     CrawledStockVO getOneStock(String symbol);
 
     List<CrawledStockVO> pagination(Pagination pagination);
+
+    Object findByStockSearchWordPage(String stockSearch);
+
+
 }
 
 @Service
@@ -194,6 +198,11 @@ class StockServiceImpl implements StockService {
         List<CrawledStockVO> result = new ArrayList<>();
         List<Stock> crawledStock = repository.pagination(pagination);
         return getStocksVOS(result, crawledStock);
+    }
+
+    @Override
+    public Object findByStockSearchWordPage(String stockSearch) {
+        return repository.selectByStockNameLikeSearchWordPage(stockSearch);
     }
 
     private List<CrawledStockVO> getStocksVOS(List<CrawledStockVO> result, Iterable<Stock> crawledStock) {

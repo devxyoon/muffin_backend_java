@@ -37,11 +37,9 @@ public class AssetController {
 
     @GetMapping("/pagination/{page}/{range}/{userId}")
     public Map<?, ?> pagination(@PathVariable int page, @PathVariable int range, @PathVariable Long userId) {
-        System.out.println(page + ", " + range);
         pagination.pageInfo(page, range, assetService.historyCount(userId));
         Map<String, Object> box = new HashMap<>();
         box.put("pagination", pagination);
-        System.out.println(assetService.paginationHistory(pagination, userId));
         box.put("list", assetService.paginationHistory(pagination, userId));
         return box;
     }
@@ -55,10 +53,8 @@ public class AssetController {
 
     @GetMapping("/total/{userId}")
     public HashMap<String, Object> totalAsset(@PathVariable Long userId) {
-        logger.info("/total");
         box.clear();
         box.put("totalAmount", assetService.getOnesTotal(userId));
-        logger.info(assetService.getOnesTotal(userId) + "~~~~~/total  getonetotal");
         return box.get();
     }
 
@@ -69,18 +65,20 @@ public class AssetController {
         return box.get();
     }
 
-    @PostMapping("/buy/{userId}")
+    @PostMapping("/ownedStock/{userId}")
     public List<TransactionLogVO> letBuyStock(@PathVariable Long userId, @RequestBody TransactionLogVO invoice) {
-        logger.info("AssetController : /buy ~~~~~~~");
-        logger.info(String.valueOf(invoice));
+        assetService.addStock(invoice);
+        return assetService.getOnesHoldings(userId);
+    }
+
+    @PostMapping("/newStock/{userId}")
+    public List<TransactionLogVO> letBuyNewStock(@PathVariable Long userId, @RequestBody TransactionLogVO invoice) {
         assetService.buyStock(invoice);
         return assetService.getOnesHoldings(userId);
     }
 
     @PostMapping("/sell/{userId}")
     public List<TransactionLogVO> letSellStock(@PathVariable Long userId, @RequestBody TransactionLogVO invoice) {
-        logger.info("AssetController : /sell");
-        logger.info(String.valueOf(invoice));
         assetService.sellStock(invoice);
         return assetService.getOnesHoldings(userId);
     }

@@ -38,7 +38,7 @@ interface IAssetRepository {
 
     void deleteAsset(int shareCount);
 
-    void updateAsset(TransactionLogVO update);
+    void updateAsset(Asset update);
 
 //    void saveAsset(TransactionLogVO update);
 }
@@ -178,7 +178,7 @@ public class AssetRepositoryImpl extends QuerydslRepositorySupport implements IA
     @Override
     @Modifying
     @Transactional
-    public void updateAsset(TransactionLogVO update) {
+    public void updateAsset(Asset update) {
         queryFactory.update(asset)
                 .where(asset.assetId.eq(update.getAssetId()))  //assetId : 클라이언트에서 부터 null로 들어오는데, set하는 방법을 모름 or symbol : update에 조인을 어떻게 걸어요??
 //                .set(asset.assetId, update.getAssetId())
@@ -189,8 +189,8 @@ public class AssetRepositoryImpl extends QuerydslRepositorySupport implements IA
                 .set(asset.transactionType, update.getTransactionType())
                 .set(asset.totalProfit, update.getTotalProfit())
                 .set(asset.totalProfitRatio, update.getTotalProfitRatio())
-                .set(asset.user.userId, update.getUserId())
-                .set(asset.stock.stockId, update.getStockId())
+//                .set(asset.user.userId, update.getUserId())
+//                .set(asset.stock.stockId, update.getStockId())
                 .execute();
     }
 

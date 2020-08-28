@@ -34,6 +34,14 @@ public class StockController {
         return box;
     }
 
+    @GetMapping("/search/{stockSearch}")
+    public Map<?,?> searchStock(@PathVariable String stockSearch){
+        System.out.println("stock:"+stockSearch);
+        Map<String, Object> box = new HashMap<>();
+        box.put("list", stockService.findByStockSearchWordPage(stockSearch));
+        return box;
+    }
+
     @GetMapping("/marketprices")
     public List<CrawledStockVO> getStockPrice() {
         return  stockService.allStock();
