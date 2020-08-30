@@ -12,8 +12,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
+@ToString (exclude = "assetList")
 @Table(name = "stock")
 public class Stock {
     @Id

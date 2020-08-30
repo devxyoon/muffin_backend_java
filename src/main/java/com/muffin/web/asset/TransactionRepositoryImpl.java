@@ -15,6 +15,8 @@ import static com.muffin.web.asset.QTransaction.transaction;
 interface ITransactionRepository {
 
     List<Transaction> pagination(Pagination pagination, Long userId);
+
+    List<Transaction> recent(Long userId);
 }
 
 @Repository
@@ -35,5 +37,11 @@ public class TransactionRepositoryImpl extends QuerydslRepositorySupport impleme
     public List<Transaction> pagination(Pagination pagination, Long userId) {
         return queryFactory.selectFrom(transaction).where(transaction.userId.eq(userId)).orderBy(transaction.transactionId.desc())
                 .offset(pagination.getStartList()).limit(pagination.getListSize()).fetch();
+    }
+
+    @Override
+    public List<Transaction> recent(Long userId) {
+        return queryFactory.selectFrom(transaction).where(transaction.userId.eq(userId)).orderBy(transaction.transactionId.desc())
+                .offset(0).limit(2).fetch();
     }
 }

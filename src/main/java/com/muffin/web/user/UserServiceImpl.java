@@ -1,7 +1,9 @@
 package com.muffin.web.user;
 import com.muffin.web.asset.Asset;
 import com.muffin.web.asset.AssetRepository;
-import com.muffin.web.stock.Stock;
+import com.muffin.web.asset.Transaction;
+import com.muffin.web.asset.TransactionRepository;
+import lombok.AllArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -11,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 
 interface UserService extends GenericService<User> {
@@ -24,6 +28,7 @@ interface UserService extends GenericService<User> {
     Optional<User> findByUserId(Long userId);
 }
 
+@AllArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -31,10 +36,7 @@ public class UserServiceImpl implements UserService {
 
     private final AssetRepository assetRepository;
 
-    public UserServiceImpl(UserRepository repository, AssetRepository assetRepository) {
-        this.repository = repository;
-        this.assetRepository = assetRepository;
-    }
+    private final TransactionRepository transactionRepository;
 
     @Override
     public User save(User user) {
@@ -43,7 +45,13 @@ public class UserServiceImpl implements UserService {
         asset.setTotalAsset(10000000);
         asset.setUser(returnUser);
         assetRepository.save(asset);
-
+        transactionRepository.save(new Transaction(
+                "",
+                10000000,
+                new SimpleDateFormat("yyyy. MM. dd.").format(new Date()),
+                "초기 자금",
+                user.getUserId()
+                ,10000000));
         return returnUser;
     }
 

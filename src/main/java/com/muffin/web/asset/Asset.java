@@ -14,9 +14,9 @@ import java.util.Optional;
 @Entity
 @Getter
 @Setter
-@ToString
 @Table(name = "asset")
 @NoArgsConstructor
+@ToString(exclude = "stock")
 public class Asset {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

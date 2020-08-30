@@ -21,6 +21,8 @@ import java.util.*;
 
 interface AssetService extends GenericService<Asset> {
 
+    TransactionLogVO myPortfolio(Long userId);
+
     public void readCSV();  // csv 파일 읽기
 
 //    List<TransactionLogVO> transacList(Long userId);
@@ -61,6 +63,22 @@ public class AssetServiceImpl implements AssetService {
 
 
     @Override
+    public TransactionLogVO myPortfolio(Long userId) {
+        TransactionLogVO vo = new TransactionLogVO();
+        List<Transaction> recent = transactionRepository.recent(userId);
+        if(recent.size() == 1) {
+            vo.setTotalAsset(recent.get(0).getTotalAsset());
+            vo.setProfitLoss(0);
+            vo.setProfitRatio(0);
+        } else {
+            vo.setTotalAsset(recent.get(0).getTotalAsset());
+            vo.setProfitLoss(recent.get(0).getTotalAsset()-recent.get(1).getTotalAsset());
+            vo.setProfitRatio((double)Math.round((double)(vo.getProfitLoss())/(double)(recent.get(1).getTotalAsset())*100)/100.0);
+        }
+        return vo;
+    }
+
+    @Override
     public void readCSV() {
         logger.info("AssetServiceImpl : readCSV()");
         InputStream is = getClass().getResourceAsStream("/static/거래내역1 - 시트1 (6).csv");
@@ -86,7 +104,7 @@ public class AssetServiceImpl implements AssetService {
                         csvRecord.get(5),
                         csvRecord.get(6),
                         Long.parseLong(csvRecord.get(7)
-                        ),Integer.parseInt(csvRecord.get(3))));
+                        ),Integer.parseInt(csvRecord.get(2))));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -141,7 +159,6 @@ public class AssetServiceImpl implements AssetService {
         List<TransactionLogVO> result = new ArrayList<>();
         List<Asset> list = repository.findOnesAllAsset(userId);
         TransactionLogVO vo = null;
-
         for (Asset l : list) {
             if (l.getShareCount() > 0) {
                 vo = new TransactionLogVO();
@@ -225,8 +242,9 @@ public class AssetServiceImpl implements AssetService {
         asset.setTotalProfit(totalProfit);
         asset.setTotalProfitRatio(totalProfitRatio);
         System.out.println(invoice.getStockName());
-        System.out.println(stockRepository.findByStockName(invoice.getStockName()).get());
-        asset.setStock(stockRepository.findByStockName(invoice.getStockName()).get());
+        System.out.println(stockRepository.findByStockName(invoice.getStockName())==null);
+        System.out.println(stockRepository.findByStockName(invoice.getStockName()));
+        asset.setStock(stockRepository.findByStockName(invoice.getStockName()));
         asset.setUser(userRepository.findById(invoice.getUserId()).get());
         transactionRepository.save(new Transaction(invoice.getStockName(), buyAmount, invoice.getTransactionDate(), invoice.getTransactionType(),
                 invoice.getUserId(), newAmount));

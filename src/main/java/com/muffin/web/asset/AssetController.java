@@ -44,13 +44,6 @@ public class AssetController {
         return box;
     }
 
-//    @GetMapping("/transactionlog/{userId}")
-//    public List<TransactionLogVO> getTransacDetail(@PathVariable Long userId) {
-//        logger.info("/transaction_list");
-//        List<TransactionLogVO> logs = assetService.transacList(userId);
-//        return logs;
-//    }
-
     @GetMapping("/total/{userId}")
     public HashMap<String, Object> totalAsset(@PathVariable Long userId) {
         box.clear();
@@ -58,11 +51,14 @@ public class AssetController {
         return box.get();
     }
 
+    @GetMapping("/myAsset/{userId}")
+    public TransactionLogVO myPortfolio(@PathVariable Long userId){
+        return assetService.myPortfolio(userId);
+    }
+
     @GetMapping("/holdingCount/{userId}")
-    public HashMap getHoling(@PathVariable Long userId) {
-        box.clear();
-        box.put("holdingCount", assetService.getOnesHoldings(userId));
-        return box.get();
+    public List<TransactionLogVO> getHoling(@PathVariable Long userId) {
+        return assetService.getOnesHoldings(userId);
     }
 
     @PostMapping("/ownedStock/{userId}")
