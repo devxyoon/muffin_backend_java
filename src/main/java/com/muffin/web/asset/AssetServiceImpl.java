@@ -71,9 +71,10 @@ public class AssetServiceImpl implements AssetService {
             vo.setProfitLoss(0);
             vo.setProfitRatio(0);
         } else {
+            System.out.println(recent);
             vo.setTotalAsset(recent.get(0).getTotalAsset());
             vo.setProfitLoss(recent.get(0).getTotalAsset()-recent.get(1).getTotalAsset());
-            vo.setProfitRatio((double)Math.round((double)(vo.getProfitLoss())/(double)(recent.get(1).getTotalAsset())*100)/100.0);
+            vo.setProfitRatio((double)Math.round((double)(vo.getProfitLoss())/(double)(recent.get(1).getTotalAsset())*1000)/100.0);
         }
         return vo;
     }
@@ -130,20 +131,18 @@ public class AssetServiceImpl implements AssetService {
     }
 
     // 보유한 주식 하나의 손익 계산
-    private List calculrateProfit(Long userId, String symbol) {
+    private List calculrateProfit(Long userId, String stockName) {
         List result = new ArrayList();
 
-        Integer nowPrice = Integer.parseInt(stockService.getOneStock(symbol).getNow().replaceAll(",", ""));
-        List<Integer> purchaseShares = new ArrayList<>();
-        List<Asset> list = repository.findOnesAllAsset(userId);
-        for (Asset l : list) {
-            purchaseShares.add(l.getPurchasePrice());
-            purchaseShares.add(l.getShareCount());
-        }
+        Integer nowPrice = Integer.parseInt(stockService.getOneStock(stockRepository.findByStockName(stockName).getSymbol()).getNow().replaceAll(",", ""));
+        Asset asset  = repository.findByStock(stockRepository.findByStockName(stockName));
 
-        int resultEvaluatedSum = nowPrice * purchaseShares.get(1);
-        int myShares = purchaseShares.get(0) * purchaseShares.get(1);
-        int resultProfitLoss = nowPrice * purchaseShares.get(1) - myShares;
+        int purchasePrice = asset.getPurchasePrice();
+        int shareCount = asset.getShareCount();
+
+        int resultEvaluatedSum = nowPrice * shareCount;
+        int myShares = purchasePrice * shareCount;
+        int resultProfitLoss = resultEvaluatedSum - myShares;
         double resultProfitRatio = (double) Math.round((double) resultProfitLoss / (double) myShares * 10000) / 100;
 
         result.add(resultEvaluatedSum);
@@ -173,10 +172,10 @@ public class AssetServiceImpl implements AssetService {
                 vo.setStockId(l.getStock().getStockId());
                 vo.setShareCount(l.getShareCount());
                 vo.setPurchasePrice(l.getPurchasePrice());
-                vo.setEvaluatedSum((Integer) calculrateProfit(userId, l.getStock().getSymbol()).get(0));
-                vo.setProfitLoss((Integer) calculrateProfit(userId, l.getStock().getSymbol()).get(1));
-                vo.setProfitRatio((Double) calculrateProfit(userId, l.getStock().getSymbol()).get(2));
-                vo.setNowPrice((Integer) calculrateProfit(userId, l.getStock().getSymbol()).get(3));
+                vo.setEvaluatedSum((Integer) calculrateProfit(userId, l.getStock().getStockName()).get(0));
+                vo.setProfitLoss((Integer) calculrateProfit(userId, l.getStock().getStockName()).get(1));
+                vo.setProfitRatio((Double) calculrateProfit(userId, l.getStock().getStockName()).get(2));
+                vo.setNowPrice((Integer) calculrateProfit(userId, l.getStock().getStockName()).get(3));
                 vo.setHasAsset(true);
                 result.add(vo);
             } else {
@@ -241,9 +240,6 @@ public class AssetServiceImpl implements AssetService {
         asset.setTotalAsset(newAmount);
         asset.setTotalProfit(totalProfit);
         asset.setTotalProfitRatio(totalProfitRatio);
-        System.out.println(invoice.getStockName());
-        System.out.println(stockRepository.findByStockName(invoice.getStockName())==null);
-        System.out.println(stockRepository.findByStockName(invoice.getStockName()));
         asset.setStock(stockRepository.findByStockName(invoice.getStockName()));
         asset.setUser(userRepository.findById(invoice.getUserId()).get());
         transactionRepository.save(new Transaction(invoice.getStockName(), buyAmount, invoice.getTransactionDate(), invoice.getTransactionType(),
