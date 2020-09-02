@@ -87,4 +87,9 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/count")
+    public Long count() {
+        return userService.count();
+    }
 }

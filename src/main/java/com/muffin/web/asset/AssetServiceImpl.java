@@ -324,8 +324,8 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public int count() {
-        return (int) repository.count();
+    public Long count() {
+        return repository.count();
     }
 
     @Override

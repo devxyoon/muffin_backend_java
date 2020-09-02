@@ -21,7 +21,7 @@ public class BoardController {
     @GetMapping("/pagination/{page}/{range}")
     public Map<?,?> pagination(@PathVariable int page, @PathVariable int range) {
         System.out.println(page+", "+range);
-        pagination.pageInfo(page, range, boardService.count());
+        pagination.pageInfo(page, range, Math.toIntExact(boardService.count()));
         Map<String, Object> box = new HashMap<>();
         box.put("pagination", pagination);
         box.put("list", boardService.pagination(pagination));

@@ -86,8 +86,8 @@ public class InvestProfileServiceImpl implements InvestProfileService {
     }
 
     @Override
-    public int count() {
-        return 0;
+    public Long count() {
+        return null;
     }
 
     @Override

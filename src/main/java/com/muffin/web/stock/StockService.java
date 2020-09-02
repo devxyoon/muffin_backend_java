@@ -70,8 +70,8 @@ class StockServiceImpl implements StockService {
     }
 
     @Override
-    public int count() {
-        return (int) repository.count();
+    public Long count() {
+        return repository.count();
     }
 
     @Override

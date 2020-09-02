@@ -27,7 +27,7 @@ public class StockController {
     @GetMapping("/pagination/{page}/{range}")
     public Map<?,?> pagination(@PathVariable int page, @PathVariable int range) {
         System.out.println(page+", "+range);
-        pagination.pageInfo(page, range, stockService.count());
+        pagination.pageInfo(page, range, Math.toIntExact(stockService.count()));
         Map<String, Object> box = new HashMap<>();
         box.put("pagination", pagination);
         box.put("list", stockService.pagination(pagination));
