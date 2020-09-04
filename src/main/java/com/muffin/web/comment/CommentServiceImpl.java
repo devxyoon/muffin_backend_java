@@ -96,8 +96,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Long count() {
-        return repository.count();
+    public int count() {
+        return (int)repository.count();
     }
 
     @Override

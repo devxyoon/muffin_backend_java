@@ -92,8 +92,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Long count() {
-        return repository.count();
+    public int count() {
+        return 0;
     }
 
     @Override

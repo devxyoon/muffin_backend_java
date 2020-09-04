@@ -108,8 +108,8 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Long count() {
-        return repository.count();
+    public int count() {
+        return (int)repository.count();
     }
 
     @Override

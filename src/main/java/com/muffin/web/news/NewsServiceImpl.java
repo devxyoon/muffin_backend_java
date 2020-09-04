@@ -90,8 +90,8 @@ public class NewsServiceImpl implements NewsService{
     }
 
     @Override
-    public Long count() {
-        return newsRepository.count();
+    public int count() {
+        return (int) newsRepository.count();
     }
 
     @Override
