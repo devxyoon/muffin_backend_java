@@ -39,9 +39,9 @@ public class Comment {
         this.board = board;
     }
 
-    @ManyToOne @JoinColumn(name="user_id") @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER) @JoinColumn(name="user_id") @JsonIgnore
     private User user;
 
-    @ManyToOne @JoinColumn(name="board_id") @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER) @JoinColumn(name="board_id") @JsonIgnore
     private Board board;
 }

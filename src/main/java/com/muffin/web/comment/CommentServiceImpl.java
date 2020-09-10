@@ -1,6 +1,8 @@
 package com.muffin.web.comment;
 
+import com.google.common.collect.Iterables;
 import com.muffin.web.board.BoardRepository;
+import com.muffin.web.user.User;
 import com.muffin.web.user.UserRepository;
 import com.muffin.web.util.GenericService;
 import com.muffin.web.util.Pagination;
@@ -10,6 +12,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -53,31 +56,41 @@ public class CommentServiceImpl implements CommentService {
             CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT);
             Iterable<CSVRecord> csvRecords = csvParser.getRecords();
             for(CSVRecord csvRecord : csvRecords) {
-                repository.save(new Comment(csvRecord.get(0), csvRecord.get(1),
+                Comment comment = new Comment(csvRecord.get(0), csvRecord.get(1),
                         userRepository.findById(Long.parseLong(csvRecord.get(2))).get(),
-                        boardRepository.findById(Long.parseLong(csvRecord.get(3))).get()));
+                        boardRepository.findById(Long.parseLong(csvRecord.get(3))).get());
+                repository.save(comment);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @Transactional
     @Override
     public List<CommentVO> findByUserIdPagination(Long id, Pagination pagination) {
         List<CommentVO> result = new ArrayList<>();
         Iterable<Comment> myComment = repository.findAllCommentByUserIdPagination(id, pagination);
-        return getCommentVOS(result, myComment);
+        myComment.forEach(comment -> {
+            CommentVO vo = new CommentVO();
+            vo.setCommentId(comment.getCommentId());
+            vo.setCommentContent(comment.getCommentContent());
+            vo.setCommentRegdate(comment.getCommentRegdate());
+            vo.setUser(comment.getUser());
+            vo.setBoard(comment.getBoard());
+            vo.setNickname(comment.getUser().getNickname());
+            result.add(vo);
+        });
+        return result;
     }
 
+    @Transactional
     @Override
     public List<CommentVO> findByBoardId(Long id) {
+        System.out.println(id);
         List<CommentVO> result = new ArrayList<>();
         Iterable<Comment> comments = repository.findByBoardId(id);
-        return getCommentVOS(result, comments);
-    }
-
-    private List<CommentVO> getCommentVOS(List<CommentVO> result, Iterable<Comment> myBoard) {
-        myBoard.forEach(comment -> {
+        comments.forEach(comment -> {
             CommentVO vo = new CommentVO();
             vo.setCommentId(comment.getCommentId());
             vo.setCommentContent(comment.getCommentContent());

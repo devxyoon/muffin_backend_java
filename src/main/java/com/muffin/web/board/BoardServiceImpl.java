@@ -1,6 +1,4 @@
 package com.muffin.web.board;
-
-import com.muffin.web.comment.CommentRepository;
 import com.muffin.web.user.UserRepository;
 import com.muffin.web.util.GenericService;
 import com.muffin.web.util.Pagination;
@@ -12,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,13 +47,13 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository repository;
     private final UserRepository userRepository;
-    private final CommentRepository commentRepository;
 
     @Override
     public Optional<Board> findByBoardId(Long id) {
         return repository.findById(id);
     }
 
+    @Transactional
     @Override
     public void update(BoardVO board) {
         Board b = null;
@@ -68,6 +67,7 @@ public class BoardServiceImpl implements BoardService {
         repository.save(b);
     }
 
+    @Transactional
     @Override
     public List<BoardVO> findBySearchWordPage(String searchWord, String condition, Pagination pagination) {
         List<BoardVO> result = new ArrayList<>();
@@ -79,10 +79,6 @@ public class BoardServiceImpl implements BoardService {
                 break;
             default: return null;
         }
-        return getBoardVOS(result, findBoard);
-    }
-
-    private List<BoardVO> getBoardVOS(List<BoardVO> result, Iterable<Board> findBoard) {
         findBoard.forEach(board -> {
             BoardVO vo = new BoardVO();
             vo.setBoardId(board.getBoardId());
@@ -92,9 +88,7 @@ public class BoardServiceImpl implements BoardService {
             vo.setViewCnt(board.getViewCnt());
             vo.setNickname(board.getUser().getNickname());
             vo.setUserId(board.getUser().getUserId());
-            if(board.getCommentList().size() == 0 || board.getCommentList() == null) {
-                vo.setCommentList(new ArrayList<>());
-            } else {
+            if(board.getCommentList().size()!=0) {
                 vo.setCommentList(board.getCommentList());
             }
             result.add(vo);
@@ -130,17 +124,15 @@ public class BoardServiceImpl implements BoardService {
             CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT);
             Iterable<CSVRecord> csvRecords = csvParser.getRecords();
             for(CSVRecord csvRecord : csvRecords){
-                long i = 1;
                 repository.save(new Board(
                         csvRecord.get(1),
                         csvRecord.get(2),
                         csvRecord.get(3),
                         Integer.parseInt(csvRecord.get(4)),
                                 userRepository.findById(Long.parseLong(csvRecord.get(5))+1).get(),
-                                commentRepository.findByBoardId(i)
+                        new ArrayList<>()
                                 )
                          );
-                i = i + 1;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -163,25 +155,70 @@ public class BoardServiceImpl implements BoardService {
         }
     }
 
+    @Transactional
     @Override
     public List<BoardVO> findByEmailId(long id, Pagination pagination) {
         List<BoardVO> result = new ArrayList<>();
         Iterable<Board> myBoard = repository.findAllBoardsByUserIdPagination(id, pagination);
-        return getBoardVOS(result, myBoard);
+        myBoard.forEach(board -> {
+            BoardVO vo = new BoardVO();
+            vo.setBoardId(board.getBoardId());
+            vo.setBoardTitle(board.getBoardTitle());
+            vo.setBoardContent(board.getBoardContent());
+            vo.setBoardRegdate(board.getBoardRegdate());
+            vo.setViewCnt(board.getViewCnt());
+            vo.setNickname(board.getUser().getNickname());
+            vo.setUserId(board.getUser().getUserId());
+            if(board.getCommentList().size()!=0) {
+                vo.setCommentList(board.getCommentList());
+            }
+            result.add(vo);
+        });
+        return result;
     }
 
+    @Transactional
     @Override
     public List<BoardVO> recentBoard() {
         List<BoardVO> result = new ArrayList<>();
         Iterable<Board> findBoard = repository.findByBoardIdGreaterThan(0L, PageRequest.of(0, 5, Sort.Direction.DESC, "boardId"));
-        return getBoardVOS(result, findBoard);
+        findBoard.forEach(board -> {
+            BoardVO vo = new BoardVO();
+            vo.setBoardId(board.getBoardId());
+            vo.setBoardTitle(board.getBoardTitle());
+            vo.setBoardContent(board.getBoardContent());
+            vo.setBoardRegdate(board.getBoardRegdate());
+            vo.setViewCnt(board.getViewCnt());
+            vo.setNickname(board.getUser().getNickname());
+            vo.setUserId(board.getUser().getUserId());
+            if(board.getCommentList().size()!=0) {
+                vo.setCommentList(board.getCommentList());
+            }
+            result.add(vo);
+        });
+        return result;
     }
 
+    @Transactional
     @Override
     public List<BoardVO> pagination(Pagination pagination) {
         List<BoardVO> result = new ArrayList<>();
         List<Board> findBoard = repository.pagination(pagination);
-        return getBoardVOS(result, findBoard);
+        findBoard.forEach(board -> {
+            BoardVO vo = new BoardVO();
+            vo.setBoardId(board.getBoardId());
+            vo.setBoardTitle(board.getBoardTitle());
+            vo.setBoardContent(board.getBoardContent());
+            vo.setBoardRegdate(board.getBoardRegdate());
+            vo.setViewCnt(board.getViewCnt());
+            vo.setNickname(board.getUser().getNickname());
+            vo.setUserId(board.getUser().getUserId());
+            if(board.getCommentList().size()!=0) {
+                vo.setCommentList(board.getCommentList());
+            }
+            result.add(vo);
+        });
+        return result;
     }
 
     @Override

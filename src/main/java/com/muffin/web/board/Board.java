@@ -43,12 +43,12 @@ public class Board {
         this.boardRegdate = boardRegdate;
         this.viewCnt = viewCnt;
         this.user = user;
-        this.commentList.addAll(commentList);
+        this.commentList = commentList;
     }
 
     @ManyToOne @JoinColumn(name="user_id") @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL , orphanRemoval = true)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL , orphanRemoval = true) @JsonIgnore
     private List<Comment> commentList = new ArrayList<>();
 }

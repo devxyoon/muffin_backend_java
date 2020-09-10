@@ -1,5 +1,6 @@
 package com.muffin.web.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.muffin.web.asset.Asset;
 import com.muffin.web.board.Board;
 import com.muffin.web.comment.Comment;
@@ -45,16 +46,16 @@ public class User {
         this.name = name;
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) @JsonIgnore
     private List<Board> boardList;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) @JsonIgnore
     private List<Comment> commentList;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) @JsonIgnore
     private List<Asset> assetList;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) @JsonIgnore
     private InvestProfile investProfile;
 
 }

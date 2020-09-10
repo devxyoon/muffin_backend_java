@@ -1,13 +1,16 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mariadb://127.0.0.1:3306/mariadb
+    driverClassName: org.mariadb.jdbc.Driver
+    username: mariadb
+    password: mariadb
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    open-in-view: false
+    show-sql: true
     hibernate:
-      ddl-auto: create
+      format_sql: true
+      ddl-auto: update
     # Hibernate ddl auto (create, create-drop, validate, update)
 
   mail:
@@ -21,3 +24,13 @@ spring:
           auth: true
           starttls:
             enable: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE

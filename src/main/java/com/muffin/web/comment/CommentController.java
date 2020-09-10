@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -45,7 +44,6 @@ public class CommentController {
 
     @GetMapping("/detail/{id}")
     public List<CommentVO> boardDetail(@PathVariable Long id) {
-        System.out.println(id);
         return commentService.findByBoardId(id);
     }
 

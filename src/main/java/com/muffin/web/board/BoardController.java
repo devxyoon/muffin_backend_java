@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.*;
 
 @AllArgsConstructor
@@ -43,6 +44,7 @@ public class BoardController {
         boardService.save(board);
     }
 
+    @Transactional
     @GetMapping("/findAll")
     public Iterable<Board> findAll(){
         return boardService.findAll();
