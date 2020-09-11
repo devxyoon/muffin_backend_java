@@ -1,8 +1,6 @@
 package com.muffin.web.comment;
 
-import com.google.common.collect.Iterables;
 import com.muffin.web.board.BoardRepository;
-import com.muffin.web.user.User;
 import com.muffin.web.user.UserRepository;
 import com.muffin.web.util.GenericService;
 import com.muffin.web.util.Pagination;

@@ -11,14 +11,16 @@ public class UserController {
 
     private final UserService userService;
     private final MailService mailService;
+    private final UserRepository userRepository;
 
-    public UserController(UserService userService, MailService mailService) {
+    public UserController(UserService userService, MailService mailService, UserRepository userRepository) {
         this.userService = userService;
         this.mailService = mailService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/csv")
-    public void readCsv(){
+    public void readCsv() {
         userService.readCsv();
     }
 
@@ -54,7 +56,7 @@ public class UserController {
             User returnUser = findUser.get();
             Optional.ofNullable(user.getPassword()).ifPresent(returnUser::setPassword);
             Optional.ofNullable(user.getNickname()).ifPresent(returnUser::setNickname);
-            return ResponseEntity.ok(userService.save(returnUser));
+            return ResponseEntity.ok(userRepository.save(returnUser));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -63,7 +65,7 @@ public class UserController {
     @PostMapping("/delete")
     public ResponseEntity<User> delete(@RequestBody User user) {
         Optional<User> findUser = userService.findByUserId(user.getUserId());
-        if(findUser.isPresent()) {
+        if (findUser.isPresent()) {
             System.out.println(findUser.get());
             userService.delete(findUser.get());
             System.out.println(findUser.get());

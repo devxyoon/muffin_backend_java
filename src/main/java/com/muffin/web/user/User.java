@@ -1,11 +1,11 @@
 package com.muffin.web.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.muffin.web.asset.Asset;
 import com.muffin.web.board.Board;
 import com.muffin.web.comment.Comment;
 import com.muffin.web.investProfile.InvestProfile;
-import com.muffin.web.news.News;
 import lombok.*;
 
 import javax.persistence.*;
@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name="user")
 public class User {
@@ -55,7 +54,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) @JsonIgnore
     private List<Asset> assetList;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) @JsonManagedReference
     private InvestProfile investProfile;
 
 }

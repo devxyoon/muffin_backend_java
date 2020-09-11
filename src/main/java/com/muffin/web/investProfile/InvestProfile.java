@@ -1,5 +1,6 @@
 package com.muffin.web.investProfile;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.muffin.web.user.User;
 import lombok.*;
@@ -26,7 +27,7 @@ public class InvestProfile {
         this.user = user;
     }
 
-    @OneToOne @JoinColumn(name="user_id") @JsonIgnore
+    @OneToOne @JoinColumn(name="user_id") @JsonBackReference
     private User user;
 
 }

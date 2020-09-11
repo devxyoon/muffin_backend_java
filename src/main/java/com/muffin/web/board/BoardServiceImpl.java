@@ -1,4 +1,6 @@
 package com.muffin.web.board;
+
+import com.muffin.web.comment.CommentRepository;
 import com.muffin.web.user.UserRepository;
 import com.muffin.web.util.GenericService;
 import com.muffin.web.util.Pagination;
@@ -47,6 +49,7 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository repository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public Optional<Board> findByBoardId(Long id) {
@@ -125,14 +128,14 @@ public class BoardServiceImpl implements BoardService {
             Iterable<CSVRecord> csvRecords = csvParser.getRecords();
             for(CSVRecord csvRecord : csvRecords){
                 repository.save(new Board(
-                        csvRecord.get(1),
-                        csvRecord.get(2),
-                        csvRecord.get(3),
-                        Integer.parseInt(csvRecord.get(4)),
+                                csvRecord.get(1),
+                                csvRecord.get(2),
+                                csvRecord.get(3),
+                                Integer.parseInt(csvRecord.get(4)),
                                 userRepository.findById(Long.parseLong(csvRecord.get(5))+1).get(),
-                        new ArrayList<>()
-                                )
-                         );
+                                new ArrayList<>()
+                        )
+                );
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,6 +194,7 @@ public class BoardServiceImpl implements BoardService {
             vo.setViewCnt(board.getViewCnt());
             vo.setNickname(board.getUser().getNickname());
             vo.setUserId(board.getUser().getUserId());
+            System.out.println(board.getCommentList());
             if(board.getCommentList().size()!=0) {
                 vo.setCommentList(board.getCommentList());
             }
