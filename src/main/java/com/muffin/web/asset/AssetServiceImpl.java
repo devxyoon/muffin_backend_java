@@ -112,30 +112,16 @@ public class AssetServiceImpl implements AssetService {
         }
     }
 
-    private void calculrateTotalProfit(Long userId, String symbol) {
-        calculrateProfit(userId, symbol).get(1);
-    }
 
     @Override
     public Integer getOnesTotal(Long userId) { return repository.getRecentProfit(userId).getTotalAsset(); }
 
-    // 사용자의 전체 에셋에 대한 손익 계산
-    private void calculrateTotalProfit(Long userId) {
-        //전체 수익금 = profit[0] + ... + profit[n] : 가지고 있는 주식의 갯수 만큼
-        int ownedStockCount = repository.getOwnedStockCount(userId);
-        for (int i = 0; i < ownedStockCount; i++) {
-//            calculrateProfit(userId, symbol);
-        }
-        //전체 수익률 = (전체 수익금 / 총 매입 금액) * 100
-
-    }
-
     // 보유한 주식 하나의 손익 계산
-    private List calculrateProfit(Long userId, String stockName) {
+    private List calculrateProfit(Long userId, Long stockId) {
         List result = new ArrayList();
 
-        Integer nowPrice = Integer.parseInt(stockService.getOneStock(stockRepository.findByStockName(stockName).getSymbol()).getNow().replaceAll(",", ""));
-        Asset asset  = repository.findByStock(stockRepository.findByStockName(stockName));
+        Integer nowPrice = Integer.parseInt(stockService.getOneStock(stockRepository.findById(stockId).get()).getNow().replaceAll(",", ""));
+        Asset asset  = repository.findByStock(stockRepository.findById(stockId).get());
 
         int purchasePrice = asset.getPurchasePrice();
         int shareCount = asset.getShareCount();
@@ -172,10 +158,10 @@ public class AssetServiceImpl implements AssetService {
                 vo.setStockId(l.getStock().getStockId());
                 vo.setShareCount(l.getShareCount());
                 vo.setPurchasePrice(l.getPurchasePrice());
-                vo.setEvaluatedSum((Integer) calculrateProfit(userId, l.getStock().getStockName()).get(0));
-                vo.setProfitLoss((Integer) calculrateProfit(userId, l.getStock().getStockName()).get(1));
-                vo.setProfitRatio((Double) calculrateProfit(userId, l.getStock().getStockName()).get(2));
-                vo.setNowPrice((Integer) calculrateProfit(userId, l.getStock().getStockName()).get(3));
+                vo.setEvaluatedSum((Integer) calculrateProfit(userId, l.getStock().getStockId()).get(0));
+                vo.setProfitLoss((Integer) calculrateProfit(userId, l.getStock().getStockId()).get(1));
+                vo.setProfitRatio((Double) calculrateProfit(userId, l.getStock().getStockId()).get(2));
+                vo.setNowPrice((Integer) calculrateProfit(userId, l.getStock().getStockId()).get(3));
                 vo.setHasAsset(true);
                 result.add(vo);
             } else {
@@ -227,6 +213,7 @@ public class AssetServiceImpl implements AssetService {
 
     @Override //신규 매수
     public void buyStock(TransactionLogVO invoice) {
+        System.out.println(invoice);
         Asset asset = new Asset();
         int recentTotal = repository.getRecentTotal(invoice.getUserId());
         int buyAmount = invoice.getPurchasePrice();
@@ -240,7 +227,7 @@ public class AssetServiceImpl implements AssetService {
         asset.setTotalAsset(newAmount);
         asset.setTotalProfit(totalProfit);
         asset.setTotalProfitRatio(totalProfitRatio);
-        asset.setStock(stockRepository.findByStockName(invoice.getStockName()));
+        asset.setStock(stockRepository.findById(invoice.getStockId()).get());
         asset.setUser(userRepository.findById(invoice.getUserId()).get());
         transactionRepository.save(new Transaction(invoice.getStockName(), buyAmount, invoice.getTransactionDate(), invoice.getTransactionType(),
                 invoice.getUserId(), newAmount));
@@ -325,7 +312,7 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public int count() {
-        return (int) repository.count();
+        return (int)repository.count();
     }
 
     @Override

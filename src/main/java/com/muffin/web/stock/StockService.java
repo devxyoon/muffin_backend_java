@@ -29,17 +29,15 @@ public interface StockService extends GenericService<Stock> {
 
     void save(Stock stock);
 
-    void readCSV();
-
     List<CrawledStockVO> allStock();
 
-    CrawledStockVO getOneStock(String symbol);
+    CrawledStockVO getOneStock(Stock stock);
 
     List<CrawledStockVO> pagination(Pagination pagination);
 
     Object findByStockSearchWordPage(String stockSearch);
 
-
+    void readCSV();
 }
 
 @Service
@@ -71,7 +69,7 @@ class StockServiceImpl implements StockService {
 
     @Override
     public int count() {
-        return (int) repository.count();
+        return (int)repository.count();
     }
 
     @Override
@@ -84,26 +82,6 @@ class StockServiceImpl implements StockService {
         return false;
     }
 
-    @Override
-    public void readCSV() {
-        logger.info("StockServiceImpl : readCSV()");
-        InputStream is = getClass().getResourceAsStream("/static/stocks.csv");
-        try {
-            BufferedReader fileReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT);
-            Iterable<CSVRecord> csvRecords = csvParser.getRecords();
-            for (CSVRecord csvRecord : csvRecords) {
-                repository.save(new Stock(
-                        csvRecord.get(1),
-                        csvRecord.get(2),
-                        new ArrayList<>()
-                ));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     @Override
     public List<CrawledStockVO> allStock() {
@@ -112,25 +90,25 @@ class StockServiceImpl implements StockService {
 //        for(String stockCode: listedSymbols){
 //            t.add(stockCrawling(stockCode)) ;
 //        }
-        List<String> miniListed = repository.findMiniListed();
-        for (String stockCode : miniListed) {
-            cralwedResults.add(stockCrawling(stockCode));
+        List<Stock> miniListed = repository.findAll();
+        for (Stock stock : miniListed) {
+            cralwedResults.add(stockCrawling(stock));
         }
 
         return cralwedResults;
     }
 
     @Override
-    public CrawledStockVO getOneStock(String symbol) {
-        CrawledStockVO vo = stockCrawling(symbol);
+    public CrawledStockVO getOneStock(Stock stock) {
+        CrawledStockVO vo = stockCrawling(stock);
         return vo;
     }
 
 
-    private CrawledStockVO stockCrawling(String stockCode) {
+    private CrawledStockVO stockCrawling(Stock stock) {
         CrawledStockVO vo = null;
         try {
-            String url = "https://finance.naver.com/item/main.nhn?code=" + stockCode;
+            String url = "https://finance.naver.com/item/main.nhn?code=" + stock.getSymbol();
             Connection.Response homepage = Jsoup.connect(url).method(Connection.Method.GET)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36")
                     .execute();
@@ -173,6 +151,7 @@ class StockServiceImpl implements StockService {
 
             for (int i = 0; i < symbol.size(); i++) {
                 vo = new CrawledStockVO();
+                vo.setStockId(stock.getStockId());
                 vo.setStockName(stockName.get(i).text());
                 vo.setSymbol(symbol.get(i).text());
                 vo.setNow(nowBlind.get(i).text());
@@ -205,10 +184,29 @@ class StockServiceImpl implements StockService {
         return repository.selectByStockNameLikeSearchWordPage(stockSearch);
     }
 
+    @Override
+    public void readCSV() {
+        logger.info("StockServiceImpl : readCSV()");
+        InputStream is = getClass().getResourceAsStream("/static/stocks.csv");
+        try {
+            BufferedReader fileReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            CSVParser csvParser = new CSVParser(fileReader, CSVFormat.DEFAULT);
+            Iterable<CSVRecord> csvRecords = csvParser.getRecords();
+            for (CSVRecord csvRecord : csvRecords) {
+                repository.save(new Stock(
+                        csvRecord.get(1),
+                        csvRecord.get(2),
+                        new ArrayList<>()
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private List<CrawledStockVO> getStocksVOS(List<CrawledStockVO> result,  Iterable<Stock> crawledStock) {
         for(Stock item : crawledStock) {
-            String symbol = item.getSymbol();
-            result.add(stockCrawling(symbol));}
+            result.add(stockCrawling(item));}
         return result;
     }
 

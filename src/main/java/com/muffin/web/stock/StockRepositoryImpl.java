@@ -20,7 +20,7 @@ interface IStockRepository {
 
     List<String> findAllSymbol();
 
-    String findBySymbol(String symbol);
+    Stock findBySymbol(String symbol);
 
     List<String> findMiniListed();
 
@@ -103,9 +103,8 @@ public class StockRepositoryImpl extends QuerydslRepositorySupport implements IS
 
 
     @Override
-    public String findBySymbol(String symbol) {
-        return queryFactory.select(stock.stockName)
-                .from(stock)
+    public Stock findBySymbol(String symbol) {
+        return queryFactory.selectFrom(stock)
                 .fetchFirst();
     }
 

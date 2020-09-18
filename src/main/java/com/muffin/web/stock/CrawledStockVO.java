@@ -6,6 +6,7 @@ import java.util.Date;
 
 @Getter @Setter @ToString
 public class CrawledStockVO {
+    private Long stockId;
     private String stockName, symbol, date, now, open, high, low, close, volume, transacAmount, dod, capital;
 
 }
